@@ -19,6 +19,8 @@ const Image = require('react-image-resizer').default;
 const strftime = require('strftime');
 const h = require('react-hyperscript');
 
+const { PLACEHOLDER_32X32_ICON } = require('../../../../lib/constants');
+
 module.exports = ({ article, index }) => {
   return h('article.media', length > 1 ? {
     key: Date.now() + index
@@ -28,7 +30,7 @@ module.exports = ({ article, index }) => {
         h(Image, {
           alt: article.headline,
           src: article.image,
-          noImageSrc: 'https://bulma.io/images/placeholders/32x32.png',
+          noImageSrc: PLACEHOLDER_32X32_ICON,
           height: 28,
           width: 28
         })
