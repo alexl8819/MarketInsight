@@ -131,8 +131,8 @@ const runSymbolQuery = (query) => async (dispatch) => {
   let results;
   //
   dispatch(updateLoadingStatus(true));
-  dispatch(_doReset());
   dispatch(_chooseActive());
+  dispatch(_doReset());
   //
   try {
     results = await fetchJSON(
@@ -203,6 +203,12 @@ const runSync = (symbols) => async (dispatch, getState) => {
   if (!stocks.size) {
     dispatch(updateReadyStatus(false));
   }
+  
+  dispatch(_doReset());
+  
+  if (symbols.length) {
+    dispatch(markActive(symbols[0]));
+  }
   //
   try {
     batchResults = await fetchJSON(
@@ -233,11 +239,15 @@ const forceResync = (symbol, shouldRemove) => async(dispatch, getState) => {
     .map((stock) => stock.company.symbol);
   
   dispatch(updateReadyStatus(false));
+  
+  const updated = shouldRemove ? symbols.filter((subbed) => symbol !== subbed) : symbols.concat(symbol)
 
-  dispatch(resync(
-    shouldRemove ? symbols.filter((subbed) => symbol !== subbed) : symbols.concat(symbol)
-  ));
-
+  dispatch(resync(updated));
+  
+  /*if (updated.length) {
+    dispatch(markActive(updated[0]));
+  }*/
+  
   dispatch(updateReadyStatus(true));
 };
 

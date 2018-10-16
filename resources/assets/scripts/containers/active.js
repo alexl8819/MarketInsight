@@ -21,9 +21,9 @@ const { bindActionCreators } = require('redux');
 const { forceResync } = require('../actions');
 const Summary = require('../components/summary');
 
-const { matchByKey } = require('../../../../lib/util');
+// const { matchByKey } = require('../../../../lib/util');
 
-const mapStateToProps = (state) => ({ 
+const mapStateToProps = (state) => ({
   selected: state.stocks.toArray().find(
     (stock) => stock.company.symbol === state.active
   )
