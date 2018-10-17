@@ -163,7 +163,7 @@ class Summary extends Component {
         ]),
         h('div.content', {}, [
           h('h5.is-size-5', {}, 'News'),
-          news.map((article, index) => h(Article, { article, index }))
+          news.map((article, index) => h(Article, { key: (Date.now() * index), article, index }))
         ])
       ])
     )

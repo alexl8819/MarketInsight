@@ -204,7 +204,7 @@ const runSync = (symbols) => async (dispatch, getState) => {
     dispatch(updateReadyStatus(false));
   }
   
-  dispatch(_doReset());
+  // dispatch(_doReset());
   
   if (symbols.length) {
     dispatch(markActive(symbols[0]));
@@ -243,10 +243,6 @@ const forceResync = (symbol, shouldRemove) => async(dispatch, getState) => {
   const updated = shouldRemove ? symbols.filter((subbed) => symbol !== subbed) : symbols.concat(symbol)
 
   dispatch(resync(updated));
-  
-  /*if (updated.length) {
-    dispatch(markActive(updated[0]));
-  }*/
   
   dispatch(updateReadyStatus(true));
 };
