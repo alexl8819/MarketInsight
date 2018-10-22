@@ -20,6 +20,15 @@ const {
   StrictObjectSet
 } = require('../../../../lib/util');
 
+const {
+  UPDATE_CONNECTION_STATUS,
+  UPDATE_READY_STATUS,
+  UPDATE_ERROR_STATUS,
+  MARK_ACTIVE,
+  SYNC,
+  APPLY_RESULTS
+} = require('../../../../lib/constants')
+
 const initialState = {
   connected: false, // state of network connection
   ready: false, // state of data filled
@@ -33,17 +42,17 @@ const initialState = {
 
 module.exports = (state = initialState, action) => {
   switch (action.type) {
-  case 'UPDATE_CONNECTION_STATUS': // Updates connection status
+  case UPDATE_CONNECTION_STATUS: // Updates connection status
     return assoc('connected', action.connected, state);
-  case 'UPDATE_READY_STATUS': // Updates ready status
+  case UPDATE_READY_STATUS: // Updates ready status
     return assoc('ready', action.ready, state);
-  case 'UPDATE_ERROR_STATUS': // Updates error status
+  case UPDATE_ERROR_STATUS: // Updates error status
     return assoc('error', action.error, state);
-  case 'MARK_ACTIVE': // Marks selected as active
+  case MARK_ACTIVE: // Marks selected as active
     return assoc('active', action.symbol, state);
-  case 'SYNC': // Update stocks
+  case SYNC: // Update stocks
     return assoc('stocks', action.stocks, state);
-  case 'APPLY_RESULTS': // Applys search results
+  case APPLY_RESULTS: // Applys search results
     return assoc('results', action.results, state);
   default:
     return state;
