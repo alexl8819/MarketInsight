@@ -15,11 +15,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
+require('core-js/fn/promise'); // Polyfill promises for older browsers
+
 const { render } = require('react-dom');
 const h = require('react-hyperscript');
 const ready = require('document-ready');
 
 const Root = require('./components/root');
 
+const rootElement = document.getElementById('app');
+
+if (!rootElement) {
+  throw new Error('rootElement (#app) was not found. Unable to proceed');
+}
+
 // Render UI when ready
-ready(() => render(h(Root, {}), document.getElementById('app')));
+ready(() => render(h(Root, {}), rootElement));

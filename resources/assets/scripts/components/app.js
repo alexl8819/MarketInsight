@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
+const { Fragment } = require('react');
 const h = require('react-hyperscript');
 
 const { 
@@ -23,7 +24,7 @@ const {
 } = require('../containers');
 
 module.exports = () => {
-  return h('div', {}, [
+  return h(Fragment, {}, [
     h(StockWatch, {}),
     h(Notification, {})
   ]);

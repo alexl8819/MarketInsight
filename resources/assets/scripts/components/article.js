@@ -19,7 +19,7 @@ const Image = require('react-image-resizer').default;
 const strftime = require('strftime');
 const h = require('react-hyperscript');
 
-const { PLACEHOLDER_32X32_ICON } = require('../../../../lib/constants');
+const { PLACEHOLDER_32X32_NEWS_ICON } = require('../../../../lib/constants');
 
 module.exports = ({ article, index }) => {
   return h('article.media', length > 1 ? {
@@ -30,7 +30,7 @@ module.exports = ({ article, index }) => {
         h(Image, {
           alt: article.headline,
           src: article.image,
-          noImageSrc: PLACEHOLDER_32X32_ICON,
+          noImageSrc: PLACEHOLDER_32X32_NEWS_ICON,
           height: 28,
           width: 28
         })

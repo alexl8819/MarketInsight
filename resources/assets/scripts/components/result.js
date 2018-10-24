@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
-const { Component } = require('react');
+const { Component, Fragment } = require('react');
 const Image = require('react-image-resizer').default;
 const PropTypes = require('prop-types');
 const h = require('react-hyperscript');
@@ -34,7 +34,7 @@ class SearchResult extends Component {
 
   render () {
     const { symbol, logo, companyName } = this.props.company;
-    return h('div', {}, [
+    return h(Fragment, {}, [
       h('a.dropdown-item', {
         href: '#',
         onClick: this._handleClick(symbol)

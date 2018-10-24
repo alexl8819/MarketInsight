@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
 const { WEBSOCKET_SUPPORT } = require('simple-websocket');
-const { promisify } = require('es6-promisify');
+const pify = require('pify');
 const {
   updateConnectionStatus, 
   updateReadyStatus, 
@@ -30,7 +30,7 @@ const {
   ErrorMessage
 } = require('../../../../lib/network/messages');
 
-const connect = promisify(ClientSession.connect);
+const connect = pify(ClientSession.connect);
 
 let session;
 
@@ -54,6 +54,7 @@ const websocketHandler = (store) => (next) => async (action) => {
     try {
       session = await connect(`wss://${action.location}`);
     } catch (err) {
+      console.error(err)
       store.dispatch(updateErrorStatus(new Error('Network connection failed')));
       setTimeout(() => store.dispatch(updateConnectionStatus(false)), 2000);
       return;
@@ -113,7 +114,7 @@ const websocketHandler = (store) => (next) => async (action) => {
     break;
   }
 
-  await next(action);
+  next(action);
 };
 
 module.exports = websocketHandler;

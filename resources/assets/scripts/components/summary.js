@@ -49,6 +49,12 @@ const customStatsStyle = css`
   }
 `;
 
+const customNewsStyle = css`
+  :host {
+    margin-top: 10px;
+  }
+`;
+
 class Summary extends Component {
   _handleClick (symbol, shouldRemove) {
     return (event) => {
@@ -90,7 +96,6 @@ class Summary extends Component {
           h('div.level-right', {}, [ 
             h('div.content.has-text-right', {}, [
               h('h5.is-size-5.is-uppercase.has-text-right.has-text-weight-bold', {}, company.symbol),
-              //h('span.subtitle.is-size-6', {}, company.industry),
               h('p.buttons', {}, 
                 h('button.button.is-fullwidth', {
                   className: subscribed ? 'is-danger' : 'is-primary',
@@ -119,7 +124,7 @@ class Summary extends Component {
         }, [
           h('div.column.is-half', {}, 
             h('div.content', {}, [
-              h('h5.is-size-5', {}, 'Stats'),
+              h('h5.title.is-size-5', {}, 'Stats'),
               h('table.table', {}, [
                 h('tbody', {}, [
                   h('tr', {}, [
@@ -156,13 +161,13 @@ class Summary extends Component {
           ),
           h('div.column', {}, 
             h('div.content', {}, [
-              h('h5.is-size-5', {}, 'About'),
+              h('h5.title.is-size-5', {}, 'About'),
               h('p', {}, company.description)
             ])
           )
         ]),
-        h('div.content', {}, [
-          h('h5.is-size-5', {}, 'News'),
+        h('div.content', { className: customNewsStyle }, [
+          h('h5.title.is-size-5', {}, 'News'),
           news.map((article, index) => h(Article, { key: (Date.now() * index), article, index }))
         ])
       ])
