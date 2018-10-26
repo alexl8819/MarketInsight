@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
-const { Component, Fragment } = require('react');
+const { Component } = require('react');
 const debounce = require('debounce');
 const h = require('react-hyperscript');
 const css = require('sheetify');
@@ -95,7 +95,7 @@ class Search extends Component {
 
   render () {
     const { connected, results } = this.props;
-    return h(Fragment, { className: customDropdownStyle },
+    return h('div', { className: customDropdownStyle },
       h('div', {
         className: connected && this.state.isFetching ? 'dropdown is-active' : 'dropdown'
       }, [

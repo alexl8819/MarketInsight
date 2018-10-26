@@ -68,6 +68,10 @@ class Summary extends Component {
   }
 
   render () {
+    if (!this.props.selected) {
+      return null
+    }
+
     const {
       quote,
       company,
