@@ -179,4 +179,8 @@ class Summary extends Component {
   }
 };
 
+Summary.propTypes = {
+  selected: PropTypes.object
+};
+
 module.exports = Summary;

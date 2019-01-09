@@ -109,7 +109,8 @@ class Stock extends Component {
 
 Stock.propTypes = {
   symbol: PropTypes.string,
-  companyName: PropTypes.string
+  company: PropTypes.object,
+  selected: PropTypes.bool
 };
 
 const customListStyle = css`

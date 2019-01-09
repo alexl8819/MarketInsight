@@ -38,7 +38,7 @@ class Chart extends Component {
     };
   }
 
-  _render () {
+  _renderChart () {
     this.state.chart = Highstock.stockChart('chart', 
       assoc('series', [ this.props.series ], DEFAULT_CHART_OPTIONS)
     );
@@ -74,7 +74,7 @@ class Chart extends Component {
   }
 
   componentDidMount () {
-    this._render();
+    this._renderChart();
   }
 
   render () {
