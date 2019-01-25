@@ -60,7 +60,13 @@ class Article extends Component {
 };
 
 Article.propTypes = {
-  article: PropTypes.object
+  article: PropTypes.exact({
+    headline: PropTypes.string.isRequired,
+    image: PropTypes.string.isRequired,
+    source: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+    datetime: PropTypes.string.isRequired
+  })
 };
 
 module.exports = Article;

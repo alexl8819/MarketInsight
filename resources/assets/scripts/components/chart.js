@@ -82,8 +82,12 @@ class Chart extends Component {
   }
 };
 
+Chart.defaultProps = {
+  series: []
+};
+
 Chart.propTypes = {
-  series: PropTypes.object
+  series: PropTypes.object.isRequired
 };
 
 module.exports = Chart;

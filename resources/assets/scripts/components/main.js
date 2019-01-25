@@ -55,9 +55,14 @@ class Main extends Component {
   }
 }
 
+Main.defaultProps = {
+  connected: false,
+  ready: false
+};
+
 Main.propTypes = {
-  connected: PropTypes.bool,
-  ready: PropTypes.bool
+  connected: PropTypes.bool.isRequired,
+  ready: PropTypes.bool.isRequired
 };
 
 module.exports = Main;

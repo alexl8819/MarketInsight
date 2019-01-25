@@ -51,8 +51,12 @@ class ErrorToast extends Component {
   }
 };
 
+ErrorToast.defaultProps = {
+  error: new Error()
+};
+
 ErrorToast.propTypes = {
   error: PropTypes.instanceOf(Error)
-}
+};
 
 module.exports = ErrorToast;

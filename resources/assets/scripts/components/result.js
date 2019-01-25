@@ -64,10 +64,16 @@ class SearchResult extends Component {
   }
 }
 
+SearchResult.defaultProps = {
+  symbol: '',
+  logo: '',
+  companyName: ''
+};
+
 SearchResult.propTypes = {
-  symbol: PropTypes.string,
-  logo: PropTypes.string,
-  companyName: PropTypes.string
+  symbol: PropTypes.string.isRequired,
+  logo: PropTypes.string.isRequired,
+  companyName: PropTypes.string.isRequired
 };
 
 module.exports = SearchResult;

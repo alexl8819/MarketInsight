@@ -131,9 +131,14 @@ class Search extends Component {
   }
 };
 
+Search.defaultProps = {
+  connected: false,
+  results: []
+};
+
 Search.propTypes = {
-  connected: PropTypes.bool,
-  results: PropTypes.array
+  connected: PropTypes.bool.isRequired,
+  results: PropTypes.arrayOf(PropTypes.object).isRequired
 };
 
 module.exports = Search;

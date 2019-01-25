@@ -102,15 +102,24 @@ class Stock extends Component {
           }, latestPrice) 
         )
       )])
-    )
-    );
+    ));
   }
 }
 
+Stock.defaultProps = {
+  selected: false
+};
+
 Stock.propTypes = {
-  symbol: PropTypes.string,
-  company: PropTypes.object,
-  selected: PropTypes.bool
+  company: PropTypes.shape({
+    symbol: PropTypes.string.isRequired,
+    companyName: PropTypes.string.isRequired
+  }).isRequired,
+  quote: PropTypes.shape({
+    change: PropTypes.string.isRequired,
+    latestPrice: PropTypes.string.isRequired
+  }).isRequired,
+  selected: PropTypes.bool.isRequired
 };
 
 const customListStyle = css`
@@ -137,9 +146,13 @@ class StocksList extends Component {
   }
 }
 
+StocksList.defaultProps = {
+  loading: false
+};
+
 StocksList.propTypes = {
-  stocks: PropTypes.array,
-  loading: PropTypes.bool
+  stocks: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
+  loading: PropTypes.bool.isRequired
 };
 
 module.exports = { 

@@ -180,7 +180,13 @@ class Summary extends Component {
 };
 
 Summary.propTypes = {
-  selected: PropTypes.object
+  selected: PropTypes.exact({
+    quote: PropTypes.object.isRequired,
+    company: PropTypes.object.isRequired,
+    news: PropTypes.arrayOf(PropTypes.object.isRequired).isRequired,
+    chart: PropTypes.array.isRequired, //.arrayOf(PropTypes.number).isRequired,
+    subscribed: PropTypes.bool.isRequired
+  })
 };
 
 module.exports = Summary;
