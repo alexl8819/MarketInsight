@@ -1,4 +1,4 @@
-# TradeInsight
+# MarketInsight
 https://iextrading.com/developer/docs/
 
 # Screenshot
