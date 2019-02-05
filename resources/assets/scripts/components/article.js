@@ -57,7 +57,7 @@ class Article extends Component {
       )
     ]);
   }
-};
+}
 
 Article.propTypes = {
   article: PropTypes.exact({

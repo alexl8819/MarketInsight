@@ -23,16 +23,16 @@ const {
 const {
   UPDATE_CONNECTION_STATUS,
   UPDATE_READY_STATUS,
-  UPDATE_ERROR_STATUS,
+  UPDATE_ALERT_STATUS,
   MARK_ACTIVE,
   SYNC,
   APPLY_RESULTS
-} = require('../../../../lib/constants')
+} = require('../../../../lib/constants');
 
 const initialState = {
   connected: false, // state of network connection
   ready: false, // state of data filled
-  error: null, // state of network/application errors
+  alert: {}, // state of network/application
   active: null, // state of active symbol watch
   results: new StrictObjectSet(), // non-duplicated result set
   stocks: new StrictObjectSet() // non-duplicated stocks set
@@ -46,8 +46,8 @@ module.exports = (state = initialState, action) => {
     return assoc('connected', action.connected, state);
   case UPDATE_READY_STATUS: // Updates ready status
     return assoc('ready', action.ready, state);
-  case UPDATE_ERROR_STATUS: // Updates error status
-    return assoc('error', action.error, state);
+  case UPDATE_ALERT_STATUS: // Updates alert status
+    return assoc('alert', action.alert, state);
   case MARK_ACTIVE: // Marks selected as active
     return assoc('active', action.symbol, state);
   case SYNC: // Update stocks

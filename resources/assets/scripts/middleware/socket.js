@@ -20,7 +20,7 @@ const pify = require('pify');
 const {
   updateConnectionStatus, 
   updateReadyStatus, 
-  updateErrorStatus,
+  updateAlertStatus,
   runSync 
 } = require('../actions');
 
@@ -36,26 +36,30 @@ let session;
 
 const websocketHandler = (store) => (next) => async (action) => {
   if (!WEBSOCKET_SUPPORT) {
-    store.dispatch(updateErrorStatus(
-      new Error('Websockets Unsupported - Browser update required')
-    ));
+    store.dispatch(updateAlertStatus({
+      message: 'Websockets Unsupported - Browser update required',
+      isError: true
+    }));
     return;
   }
   
   switch (action.type) {
   case 'WS:CONNECT':
     if (session) {
-      store.dispatch(updateErrorStatus(
-        new Error('Network connection has already been established')
-      ));
+      store.dispatch(updateAlertStatus({
+        message: 'Network connection has already been established',
+        isError: true
+      }));
       return;  
     }
     // Attempt to connect to the server
     try {
       session = await connect(`wss://${action.location}`);
     } catch (err) {
-      console.error(err)
-      store.dispatch(updateErrorStatus(new Error('Network connection failed')));
+      store.dispatch(updateAlertStatus({
+        message: 'Network connection failed',
+        isError: true
+      }));
       setTimeout(() => store.dispatch(updateConnectionStatus(false)), 2000);
       return;
     }
@@ -67,7 +71,10 @@ const websocketHandler = (store) => (next) => async (action) => {
     });
     // Handle disconnect updates
     session.on('disconnect', () => {
-      store.dispatch(updateErrorStatus(new Error('Network disconnection occured')));
+      store.dispatch(updateAlertStatus({
+        message: 'Network disconnection occured',
+        isError: true
+      }));
       setTimeout(() => store.dispatch(updateConnectionStatus(false)), 2000);
     });
     // Handle reconnect updates
@@ -75,7 +82,10 @@ const websocketHandler = (store) => (next) => async (action) => {
     // Handle errors message
     session.on('error', (error) => {
       if (ErrorMessage.validate(error)) {
-        store.dispatch(updateErrorStatus(new Error(error.message)));
+        store.dispatch(updateAlertStatus({
+          message: error.message,
+          isError: true
+        }));
       }
     });
     // Handle cleanup
@@ -85,9 +95,10 @@ const websocketHandler = (store) => (next) => async (action) => {
     break;
   case 'WS:FORCE_DISCONNECT': // Disconnect
     if (!session) {
-      store.dispatch(updateErrorStatus(
-        new Error('Fatal error occured: Page refresh required')
-      ));
+      store.dispatch(updateAlertStatus({
+        message: 'Fatal error occured: Page refresh required',
+        isError: true
+      }));
       return;
     }
     // Disconnect session
@@ -98,9 +109,10 @@ const websocketHandler = (store) => (next) => async (action) => {
   case 'WS:FORCE_RESYNC':
     // Check session still exists
     if (!session) {
-      store.dispatch(updateErrorStatus(
-        new Error('Fatal error occured: Page refresh required')
-      ));
+      store.dispatch(updateAlertStatus({
+        message: 'Fatal error occured: Page refresh required',
+        isError: true
+      }));
       return;
     }
     // Wait for message to be written

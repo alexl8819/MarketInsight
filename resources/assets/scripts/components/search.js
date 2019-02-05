@@ -120,16 +120,16 @@ class Search extends Component {
           role: 'menu',
           className: customDropdownStyle 
         }, 
-          h('div.dropdown-content', {}, !results.length 
-            ? h('div.dropdown-item.is-unselectable', {}, 'No results found') 
-            : map((result) => h(SearchResult, assoc('actions', 
-                assoc('reset', this._resetQuery.bind(this), this.props.actions), result)
-              ), results)
+        h('div.dropdown-content', {}, !results.length 
+          ? h('div.dropdown-item.is-unselectable', {}, 'No results found') 
+          : map((result) => h(SearchResult, assoc('actions', 
+            assoc('reset', this._resetQuery.bind(this), this.props.actions), result)
+          ), results)
         ))
       ])
-    )
+    );
   }
-};
+}
 
 Search.defaultProps = {
   connected: false,

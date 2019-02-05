@@ -63,13 +63,13 @@ class Summary extends Component {
     };
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate (nextProps) {
     return (nextProps.selected && this.props.selected) || false;
   }
 
   render () {
     if (!this.props.selected) {
-      return null
+      return null;
     }
 
     const {
@@ -78,106 +78,106 @@ class Summary extends Component {
       news,
       chart,
       subscribed
-    } = this.props.selected
+    } = this.props.selected;
     
     return h('section.section.has-background-white', { 
       className: customComponentStyle 
     }, h('div.container.is-fluid', {}, [
-        h('div.level', {}, [
-          h('div.level-left', {},
-            h('div.content.has-text-left', {}, [
-              h('h3.title.is-size-3', {}, minimizeText(company.companyName, 32, 32)),
-              h('h4.subtitle.is-size-4', {}, [
-                h('span', {
-                  className: customSpanStyle
-                }, quote.latestPrice),
-                h('span', {
-                  className: quote.change && quote.change.length > 0 && quote.change[0] === '+' ? 'has-text-success' : 'has-text-danger'
-                }, quote.change)
-              ])
-            ])
-          ),
-          h('div.level-right', {}, [ 
-            h('div.content.has-text-right', {}, [
-              h('h5.is-size-5.is-uppercase.has-text-right.has-text-weight-bold', {}, company.symbol),
-              h('p.buttons', {}, 
-                h('button.button.is-fullwidth', {
-                  className: subscribed ? 'is-danger' : 'is-primary',
-                  onClick: this._handleClick(company.symbol, subscribed)
-                }, [
-                  h('span.icon', {}, 
-                    h('i', {
-                      className: subscribed ? 'ion-ios-bell' : 'ion-ios-bell-outline'
-                    })
-                  ),
-                  h('span', {}, subscribed ? 'Unsubscribe' : 'Subscribe')
-                ])
-              )
+      h('div.level', {}, [
+        h('div.level-left', {},
+          h('div.content.has-text-left', {}, [
+            h('h3.title.is-size-3', {}, minimizeText(company.companyName, 32, 32)),
+            h('h4.subtitle.is-size-4', {}, [
+              h('span', {
+                className: customSpanStyle
+              }, quote.latestPrice),
+              h('span', {
+                className: quote.change && quote.change.length > 0 && quote.change[0] === '+' ? 'has-text-success' : 'has-text-danger'
+              }, quote.change)
             ])
           ])
-        ]),
-        h(Chart, { 
-          series: {
-            id: company.symbol,
-            name: company.symbol,
-            data: chart
-          }
-        }),
-        h('div.columns', {
-          className: customStatsStyle
-        }, [
-          h('div.column.is-half', {}, 
-            h('div.content', {}, [
-              h('h5.title.is-size-5', {}, 'Stats'),
-              h('table.table', {}, [
-                h('tbody', {}, [
-                  h('tr', {}, [
-                    h('td.has-text-grey.is-uppercase', {}, 'open'),
-                    h('td.has-text-weight-bold.is-uppercase', {}, quote.open),
-                    h('td.has-text-grey.is-uppercase', {}, 'volume'),
-                    h('td.has-text-weight-bold.is-uppercase', {}, quote.latestVolume)
-                  ]),
-                  h('tr', {}, [
-                    h('td.has-text-grey.is-uppercase', {}, 'high'),
-                    h('td.has-text-weight-bold.is-uppercase', {}, quote.high),
-                    h('td.has-text-grey.is-uppercase', {}, 'avg volume'),
-                    h('td.has-text-weight-bold.is-uppercase', quote.avgTotalVolume)
-                  ]),
-                  h('tr', {}, [
-                    h('td.has-text-grey.is-uppercase', {}, 'low'),
-                    h('td.has-text-weight-bold.is-uppercase', {}, quote.low),
-                    h('td.has-text-grey.is-uppercase', {}, 'mkt cap'),
-                    h('td.has-text-weight-bold.is-uppercase', {}, quote.marketCap)
-                  ]),
-                  h('tr', {}, [
-                    h('td.has-text-grey.is-uppercase', {}, '52 wk high'),
-                    h('td.has-text-weight-bold.is-uppercase', {}, quote.week52High),
-                    h('td.has-text-grey.is-uppercase', {}, 'p/e ratio'),
-                    h('td.has-text-weight-bold.is-uppercase', {}, quote.peRatio)
-                  ]),
-                  h('tr', {}, [
-                    h('td.has-text-grey.is-uppercase', {}, '52 wk low'),
-                    h('td.has-text-weight-bold.is-uppercase', {}, quote.week52Low)
-                  ])
-                ])    
-              ])          
-            ])
-          ),
-          h('div.column', {}, 
-            h('div.content', {}, [
-              h('h5.title.is-size-5', {}, 'About'),
-              h('p', {}, company.description)
-            ])
-          )
-        ]),
-        h('div.content', { className: customNewsStyle }, [
-          h('h5.title.is-size-5', {}, 'News'),
-          news.map((article, index) => h(Article, { key: (Date.now() * index), article, index }))
+        ),
+        h('div.level-right', {}, [ 
+          h('div.content.has-text-right', {}, [
+            h('h5.is-size-5.is-uppercase.has-text-right.has-text-weight-bold', {}, company.symbol),
+            h('p.buttons', {}, 
+              h('button.button.is-fullwidth', {
+                className: subscribed ? 'is-danger' : 'is-primary',
+                onClick: this._handleClick(company.symbol, subscribed)
+              }, [
+                h('span.icon', {}, 
+                  h('i', {
+                    className: subscribed ? 'ion-ios-bell' : 'ion-ios-bell-outline'
+                  })
+                ),
+                h('span', {}, subscribed ? 'Unsubscribe' : 'Subscribe')
+              ])
+            )
+          ])
         ])
+      ]),
+      h(Chart, { 
+        series: {
+          id: company.symbol,
+          name: company.symbol,
+          data: chart
+        }
+      }),
+      h('div.columns', {
+        className: customStatsStyle
+      }, [
+        h('div.column.is-half', {}, 
+          h('div.content', {}, [
+            h('h5.title.is-size-5', {}, 'Stats'),
+            h('table.table', {}, [
+              h('tbody', {}, [
+                h('tr', {}, [
+                  h('td.has-text-grey.is-uppercase', {}, 'open'),
+                  h('td.has-text-weight-bold.is-uppercase', {}, quote.open),
+                  h('td.has-text-grey.is-uppercase', {}, 'volume'),
+                  h('td.has-text-weight-bold.is-uppercase', {}, quote.latestVolume)
+                ]),
+                h('tr', {}, [
+                  h('td.has-text-grey.is-uppercase', {}, 'high'),
+                  h('td.has-text-weight-bold.is-uppercase', {}, quote.high),
+                  h('td.has-text-grey.is-uppercase', {}, 'avg volume'),
+                  h('td.has-text-weight-bold.is-uppercase', quote.avgTotalVolume)
+                ]),
+                h('tr', {}, [
+                  h('td.has-text-grey.is-uppercase', {}, 'low'),
+                  h('td.has-text-weight-bold.is-uppercase', {}, quote.low),
+                  h('td.has-text-grey.is-uppercase', {}, 'mkt cap'),
+                  h('td.has-text-weight-bold.is-uppercase', {}, quote.marketCap)
+                ]),
+                h('tr', {}, [
+                  h('td.has-text-grey.is-uppercase', {}, '52 wk high'),
+                  h('td.has-text-weight-bold.is-uppercase', {}, quote.week52High),
+                  h('td.has-text-grey.is-uppercase', {}, 'p/e ratio'),
+                  h('td.has-text-weight-bold.is-uppercase', {}, quote.peRatio)
+                ]),
+                h('tr', {}, [
+                  h('td.has-text-grey.is-uppercase', {}, '52 wk low'),
+                  h('td.has-text-weight-bold.is-uppercase', {}, quote.week52Low)
+                ])
+              ])    
+            ])          
+          ])
+        ),
+        h('div.column', {}, 
+          h('div.content', {}, [
+            h('h5.title.is-size-5', {}, 'About'),
+            h('p', {}, company.description)
+          ])
+        )
+      ]),
+      h('div.content', { className: customNewsStyle }, [
+        h('h5.title.is-size-5', {}, 'News'),
+        news.map((article, index) => h(Article, { key: (Date.now() * index), article, index }))
       ])
-    )
+    ])
+    );
   }
-};
+}
 
 Summary.propTypes = {
   selected: PropTypes.exact({

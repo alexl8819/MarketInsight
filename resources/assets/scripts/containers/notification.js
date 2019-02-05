@@ -18,20 +18,20 @@
 const { connect } = require('react-redux');
 const { bindActionCreators } = require('redux');
 
-const { updateErrorStatus } = require('../actions');
-const ErrorToast = require('../components/error');
+const { updateAlertStatus } = require('../actions');
+const Alert = require('../components/alert');
 
 const { pick } = require('../../../../lib/util');
 
-const mapStateToProps = (state) => pick(['error'], state);
+const mapStateToProps = (state) => pick(['alert'], state);
 
 const mapDispatcherToProps = (dispatch) => ({
   actions: bindActionCreators({ 
-    updateErrorStatus
+    updateAlertStatus
   }, dispatch)
 });
 
 module.exports = connect(
   mapStateToProps,
   mapDispatcherToProps
-)(ErrorToast);
+)(Alert);

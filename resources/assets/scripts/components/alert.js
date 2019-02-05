@@ -19,44 +19,47 @@ const { Component } = require('react');
 const { toast } = require('bulma-toast');
 const PropTypes = require('prop-types');
 
-const { isNil } = require('../../../../lib/util');
+const { isEmpty } = require('../../../../lib/util');
 
-class ErrorToast extends Component {
-  shouldComponentUpdate (nextProps, nextState) {
-    return nextProps.error !== this.props.error;
+class Alert extends Component {
+  shouldComponentUpdate (nextProps) {
+    return nextProps.alert !== this.props.alert;
   }
   
   componentDidUpdate () {
-    this.showToast(this.props.error);
+    this.showToast(this.props.alert);
   }
 
-  showToast (error) {
-    if (isNil(error) || !(error instanceof Error)) {
+  showToast (alert) {
+    if (isEmpty(alert)) {
       return;
     }
 
     toast({
       duration: 3000,
-      type: 'is-danger',
+      type: alert.isError ? 'is-danger' : 'is-success',
       position: 'bottom-center',
       dismissable: true,
-      message: error.message
+      message: alert.message
     });
 
-    this.props.actions.updateErrorStatus(null);
+    this.props.actions.updateAlertStatus({});
   }
 
   render () {
     return null;
   }
+}
+
+Alert.defaultProps = {
+  alert: {}
 };
 
-ErrorToast.defaultProps = {
-  error: new Error()
+Alert.propTypes = {
+  alert: PropTypes.shape({
+    message: PropTypes.string,
+    isError: PropTypes.bool
+  })
 };
 
-ErrorToast.propTypes = {
-  error: PropTypes.instanceOf(Error)
-};
-
-module.exports = ErrorToast;
+module.exports = Alert;

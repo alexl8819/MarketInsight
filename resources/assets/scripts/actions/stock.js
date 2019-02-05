@@ -20,14 +20,15 @@ const {
   validateJSON,
   uppercaseArray,
   toUpper,
-  isEmpty,
-  find,
-  pipe,
-  concat,
-  sort,
+  //  isEmpty,
+  //  find,
+  //  pipe,
+  //  concat,
+  //  sort,
   map,
   filter,
   assoc,
+  difference,
   StrictObjectSet
 } = require('../../../../lib/util');
 
@@ -35,7 +36,7 @@ const {
   UPDATE_CONNECTION_STATUS,
   UPDATE_READY_STATUS,
   UPDATE_LOADING_STATUS,
-  UPDATE_ERROR_STATUS,
+  UPDATE_ALERT_STATUS,
   APPLY_RESULTS,
   MARK_ACTIVE,
   SYNC,
@@ -59,42 +60,43 @@ const forceDisconnect = () => ({
 const updateConnectionStatus = (connected) => ({
   type: UPDATE_CONNECTION_STATUS,
   connected
-})
+});
 
 const updateReadyStatus = (ready) => ({
   type: UPDATE_READY_STATUS,
   ready
-})
+});
 
 const updateLoadingStatus = (loading) => ({
   type: UPDATE_LOADING_STATUS,
   loading
-})
+});
 
-const updateErrorStatus = (error) => ({
-  type: UPDATE_ERROR_STATUS,
-  error
-})
+const updateAlertStatus = (alert, isError = false) => ({
+  type: UPDATE_ALERT_STATUS,
+  alert,
+  isError
+});
 
 const applyResults = (results) => ({
   type: APPLY_RESULTS,
   results
-})
+});
 
 const markActive = (symbol) => ({
   type: MARK_ACTIVE,
   symbol
-})
+});
 
 const sync = (stocks) => ({
   type: SYNC,
   stocks
-})
+});
 
 const resync = (symbols) => ({
   type: WS_FORCE_RESYNC,
   symbols
-})
+});
 
 // ActionCreators
 const _chooseActive = () => async (dispatch, getState) => {
@@ -112,7 +114,7 @@ const _chooseActive = () => async (dispatch, getState) => {
   ).company.symbol;
 
   dispatch(markActive(symbol));
-}
+};
 
 const _doReset = () => async (dispatch, getState) => {
   const { stocks } = getState();
@@ -122,7 +124,7 @@ const _doReset = () => async (dispatch, getState) => {
       filter((stock) => stock.subscribed, stocks.toArray())
     )
   ));
-}
+};
 
 const runSymbolQuery = (query) => async (dispatch) => {
   let results;
@@ -134,25 +136,28 @@ const runSymbolQuery = (query) => async (dispatch) => {
   try {
     results = await fetchJSON(
       `https://${window.location.host}/stock/1.0/${query}/match`
-    )
+    );
   } catch (err) {
     // TODO: only errors should be network related
     // TODO: dispatch request fail
-    results = {}
+    results = {};
   }
 
   if (!validateJSON(SYMBOL_QUERY_SCHEMA, results)) {
     if (results.error) {
       dispatch(applyResults(new StrictObjectSet([])));
     } else {
-      dispatch(updateErrorStatus(new TypeError('Something went wrong. Please try again')));
+      dispatch(updateAlertStatus({
+        message: 'Something went wrong. Please try again',
+        isError: true
+      }));
     }
   } else {
     dispatch(applyResults(new StrictObjectSet(results)));
   }
   
   dispatch(updateLoadingStatus(false));
-}
+};
 
 const fetchSummary = (symbol) => async (dispatch, getState) => {
   const { stocks } = getState();
@@ -161,31 +166,34 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
   //
   const selected = stocks.toArray().find(
     (stock) => stock.company.symbol === normalizedSymbol
-  )
-  const isSubscribed = selected ? selected.subscribed : false
+  );
+  const isSubscribed = selected ? selected.subscribed : false;
   //
   dispatch(updateLoadingStatus(true));
   //
   try {
     batchResults = await fetchJSON(
       `https://${window.location.host}/stock/1.0/${normalizedSymbol}/batchSummary`
-    )
+    );
   } catch (err) {
-    batchResults = {}
+    batchResults = {};
   }
   
   if (!validateJSON(BATCH_SUMMARY_SCHEMA, batchResults)) {
-    dispatch(updateErrorStatus(new TypeError('Something went wrong. Please try again.')))
+    dispatch(updateAlertStatus({
+      message: 'Something went wrong. Please try again.',
+      isError: true
+    }));
   } else {
     dispatch(sync(new StrictObjectSet(
       stocks.toArray().filter(
-          (stock) => stock.company.symbol !== batchResults[0].company.symbol
+        (stock) => stock.company.symbol !== batchResults[0].company.symbol
       )
       // Add summary to stock
-      .concat(assoc('subscribed', isSubscribed, batchResults[0]))
+        .concat(assoc('subscribed', isSubscribed, batchResults[0]))
       // Sort by symbol a-z
-      .sort((a, b) => b.company.symbol < a.company.symbol)
-    )))
+        .sort((a, b) => b.company.symbol < a.company.symbol)
+    )));
     dispatch(markActive(symbol));
   }
   // Reset loading state
@@ -193,7 +201,7 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
 };
 
 const runSync = (symbols) => async (dispatch, getState) => {
-  const { stocks } = getState()
+  const { stocks } = getState();
   const normalized = uppercaseArray(symbols);
   let batchResults;
   //
@@ -201,22 +209,28 @@ const runSync = (symbols) => async (dispatch, getState) => {
     dispatch(updateReadyStatus(false));
   }
   
-  // dispatch(_doReset());
-  
-  if (symbols.length) {
+  if (normalized.length) {
     dispatch(markActive(symbols[0]));
   }
+
+  const curSymbols = stocks.toArray().map((stock) => stock.company.symbol);
+  const diff = difference(curSymbols, symbols);
+
+  diff.forEach((symbol) => dispatch(updateAlertStatus({ message: `Removed ${symbol} from watchlist` })));
   //
   try {
     batchResults = await fetchJSON(
       `https://${window.location.host}/stock/1.0/${normalized.join(',')}/batchSummary`
-    )
+    );
   } catch (err) {
-    batchResults = {}
+    batchResults = {};
   }
   
   if (!validateJSON(BATCH_SUMMARY_SCHEMA, batchResults)) {
-    dispatch(updateErrorStatus(new Error('Something went wrong. Please try again')));
+    dispatch(updateAlertStatus({
+      message: 'Something went wrong. Please try again',
+      isError: true
+    }));
   } else {
     dispatch(sync(new StrictObjectSet(map(
       (result) => assoc('subscribed', true, result), 
@@ -237,10 +251,9 @@ const forceResync = (symbol, shouldRemove) => async(dispatch, getState) => {
   
   dispatch(updateReadyStatus(false));
   
-  const updated = shouldRemove ? symbols.filter((subbed) => symbol !== subbed) : symbols.concat(symbol)
+  const updated = shouldRemove ? symbols.filter((subbed) => symbol !== subbed) : symbols.concat(symbol);
 
   dispatch(resync(updated));
-  
   dispatch(updateReadyStatus(true));
 };
 
@@ -250,7 +263,7 @@ module.exports = {
   updateConnectionStatus,
   updateReadyStatus,
   updateLoadingStatus,
-  updateErrorStatus,
+  updateAlertStatus,
   runSymbolQuery,
   fetchSummary,
   runSync,

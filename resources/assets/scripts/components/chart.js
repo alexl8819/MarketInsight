@@ -47,7 +47,7 @@ class Chart extends Component {
     });
   }
 
-  shouldComponentUpdate (nextProps, nextState) {
+  shouldComponentUpdate (nextProps) {
     return nextProps.series.name !== this.props.series.name;
   }
 
@@ -80,7 +80,7 @@ class Chart extends Component {
   render () {
     return h('div#chart', {});
   }
-};
+}
 
 Chart.defaultProps = {
   series: []
