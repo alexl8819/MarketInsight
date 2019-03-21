@@ -5,8 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:dev": "export DEBUG=http,wss,stock,watch NODE_ENV=development && node index.js | pino-colada",
-    "start": "export NODE_ENV=production && node index.js | pino-colada",
+    "start:dev": "export DEBUG=http,wss,stock,watch NODE_ENV=development && npm run build-js:dev && npm run build-css && npm run inject-js && npm run inject-css && node index.js | pino-colada",
+    "start": "export NODE_ENV=production && npm run build-js && npm run build-css && npm run inject-js && npm run inject-css && node index.js | pino-colada",
     "build-css": "export NODE_ENV=production && rm -f public/*.css && node_modules/node-sass/bin/node-sass -C --trace --sourcemap=none resources/assets/styles/global.sass --stdout | node_modules/clean-css-cli/bin/cleancss --inline all | node_modules/hashmark/bin/hashmark -l 8 'public/app-{hash}.css' --silent",
     "build-js:dev": "export NODE_ENV=development && rm -f public/*.js && node_modules/browserify/bin/cmd.js resources/assets/scripts/index.js -t sheetify -g unassertify | node_modules/hashmark/bin/hashmark -l 8 'public/app-{hash}.js' --silent",
     "build-js": "export NODE_ENV=production && rm -f public/*.js && node_modules/browserify/bin/cmd.js --full-paths -t sheetify -g [ loose-envify --NODE_ENV production ] -g unassertify -g browserify-nodent -g [ bubleify --yes dangerousTaggedTemplateString --objectAssign='xtend' ] -g uglifyify resources/assets/scripts/index.js | node_modules/hashmark/bin/hashmark -l 8 'public/app-{hash}.min.js' --silent",
