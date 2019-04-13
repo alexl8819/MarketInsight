@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
-const { Component, Fragment } = require('react');
+const { PureComponent, Fragment } = require('react');
 const Image = require('react-image-resizer').default;
 const PropTypes = require('prop-types');
 const h = require('react-hyperscript');
@@ -23,7 +23,7 @@ const h = require('react-hyperscript');
 const { PLACEHOLDER_32X32_ICON } = require('../../../../lib/constants');
 const { minimizeText } = require('../../../../lib/util');
 
-class SearchResult extends Component {
+class SearchResult extends PureComponent {
   _handleClick (symbol) {
     return (event) => {
       event.preventDefault();

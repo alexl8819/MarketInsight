@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
-const { Component } = require('react');
+const { PureComponent } = require('react');
 const debounce = require('debounce');
 const h = require('react-hyperscript');
 const css = require('sheetify');
@@ -55,7 +55,7 @@ const INITIAL_STATE = {
   isFetching: false
 };
 
-class Search extends Component {
+class Search extends PureComponent {
   constructor (props) {
     super(props);
     

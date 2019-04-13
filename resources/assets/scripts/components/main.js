@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
-const { Component } = require('react');
+const { PureComponent } = require('react');
 const PropTypes = require('prop-types');
 const h = require('react-hyperscript');
 
@@ -27,7 +27,7 @@ const {
 
 const Loading = require('./loading');
 
-class Main extends Component {
+class Main extends PureComponent {
   componentWillMount () {
     this.props.actions.startConnect(window.location.host);
   }

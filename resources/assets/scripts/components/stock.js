@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
-const { Component } = require('react');
+const { PureComponent } = require('react');
 const PropTypes = require('prop-types');
 const h = require('react-hyperscript');
 const css = require('sheetify');
@@ -39,7 +39,7 @@ const customStockStyle = css`
   }
 `;
 
-class Stock extends Component {
+class Stock extends PureComponent {
   constructor (props) {
     super(props); 
     
@@ -116,7 +116,7 @@ Stock.propTypes = {
     companyName: PropTypes.string.isRequired
   }).isRequired,
   quote: PropTypes.shape({
-    change: PropTypes.string.isRequired,
+    change: PropTypes.string,
     latestPrice: PropTypes.string.isRequired
   }).isRequired,
   selected: PropTypes.bool.isRequired
@@ -132,7 +132,8 @@ const customListStyle = css`
     background-color: hsl(0, 0%, 98%);
   }
 `;
-class StocksList extends Component {
+
+class StocksList extends PureComponent {
   render () {
     const { stocks, loading } = this.props;
      

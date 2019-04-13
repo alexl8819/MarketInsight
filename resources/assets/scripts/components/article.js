@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
-const { Component } = require('react');
 const Image = require('react-image-resizer').default;
 const PropTypes = require('prop-types');
 const strftime = require('strftime');
@@ -23,41 +22,39 @@ const h = require('react-hyperscript');
 
 const { PLACEHOLDER_32X32_NEWS_ICON } = require('../../../../lib/constants');
 
-class Article extends Component {
-  render () {
-    const { article, index } = this.props;
-    return h('article.media', length > 1 ? {
-      key: Date.now() + index
-    } : {}, [
-      h('figure.media-left', {},
-        h('div.image', {}, 
-          h(Image, {
-            alt: article.headline,
-            src: article.image,
-            noImageSrc: PLACEHOLDER_32X32_NEWS_ICON,
-            height: 28,
-            width: 28
-          })
-        )
-      ),
-      h('div.media-content', {}, 
-        h('div.content', {}, 
-          h('p', {}, [
-            h('strong', {}, 
-              h('a', { 
-                href: article.url 
-              }, article.headline)
-            ),
-            h('br', {}),
-            h('small', {}, 
-              `by ${article.source} on ${strftime('%Y-%m-%d %I:%M %p', new Date(article.datetime))}`
-            )
-          ])
-        )
+const Article = (props) => {
+  const { article, index } = props;
+  return h('article.media', length > 1 ? {
+    key: Date.now() + index
+  } : {}, [
+    h('figure.media-left', {},
+      h('div.image', {}, 
+        h(Image, {
+          alt: article.headline,
+          src: article.image,
+          noImageSrc: PLACEHOLDER_32X32_NEWS_ICON,
+          height: 28,
+          width: 28
+        })
       )
-    ]);
-  }
-}
+    ),
+    h('div.media-content', {}, 
+      h('div.content', {}, 
+        h('p', {}, [
+          h('strong', {}, 
+            h('a', { 
+              href: article.url 
+            }, article.headline)
+          ),
+          h('br', {}),
+          h('small', {}, 
+            `by ${article.source} on ${strftime('%Y-%m-%d %I:%M %p', new Date(article.datetime))}`
+          )
+        ])
+      )
+    )
+  ]);
+};
 
 Article.propTypes = {
   article: PropTypes.exact({
