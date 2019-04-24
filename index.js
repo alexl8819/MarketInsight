@@ -28,10 +28,7 @@ const MarketWatch = require('./lib/watch');
 const app = express();
 
 app.use(middleware);
-
-if (process.env.NODE_ENV !== 'production') {
-  app.use('/static', express.static(join(__dirname, 'public')));
-}
+app.use('/static', express.static(join(__dirname, 'public')));
 
 app.use(router);
 
