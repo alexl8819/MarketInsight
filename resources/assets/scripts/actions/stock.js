@@ -201,7 +201,7 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
 };
 
 const runSync = (symbols) => async (dispatch, getState) => {
-  const { stocks } = getState();
+  const { stocks, active } = getState();
   const normalized = uppercaseArray(symbols);
   let batchResults;
   //
@@ -209,14 +209,16 @@ const runSync = (symbols) => async (dispatch, getState) => {
     dispatch(updateReadyStatus(false));
   }
   
-  if (normalized.length) {
+  if (normalized.length && active === null) {
     dispatch(markActive(symbols[0]));
   }
 
   const curSymbols = stocks.toArray().map((stock) => stock.company.symbol);
-  const diff = difference(curSymbols, symbols);
-
-  diff.forEach((symbol) => dispatch(updateAlertStatus({ message: `Removed ${symbol} from watchlist` })));
+  const rmDiff = difference(curSymbols, symbols);
+  const addDiff = difference(symbols, curSymbols);
+  
+  rmDiff.forEach((symbol) => dispatch(updateAlertStatus({ message: `Removed ${symbol} from watchlist` })));
+  addDiff.forEach((symbol) => dispatch(updateAlertStatus({ message: `Added ${symbol} to watchlist`})));
   //
   try {
     batchResults = await fetchJSON(

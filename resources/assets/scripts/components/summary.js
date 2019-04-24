@@ -64,7 +64,7 @@ class Summary extends Component {
   }
 
   shouldComponentUpdate (nextProps) {
-    return (nextProps.selected && this.props.selected) || false;
+    return nextProps.selected !== this.props.selected;
   }
 
   render () {
