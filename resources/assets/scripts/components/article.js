@@ -43,7 +43,8 @@ const Article = (props) => {
         h('p', {}, [
           h('strong', {}, 
             h('a', { 
-              href: article.url 
+              href: article.url,
+              target: '_blank'
             }, article.headline)
           ),
           h('br', {}),
