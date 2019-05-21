@@ -19,7 +19,6 @@ require('core-js/fn/promise'); // Polyfill promises for older browsers
 
 const { render } = require('react-dom');
 const h = require('react-hyperscript');
-const ready = require('document-ready');
 
 const Root = require('./components/root');
 
@@ -30,4 +29,4 @@ if (!rootElement) {
 }
 
 // Render UI when ready
-ready(() => render(h(Root, {}), rootElement));
+render(h(Root, {}), rootElement);

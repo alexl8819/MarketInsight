@@ -116,7 +116,10 @@ Stock.propTypes = {
     companyName: PropTypes.string.isRequired
   }).isRequired,
   quote: PropTypes.shape({
-    change: PropTypes.string,
+    change: PropTypes.oneOfType([
+      PropTypes.string, 
+      PropTypes.number
+    ]),
     latestPrice: PropTypes.string.isRequired
   }).isRequired,
   selected: PropTypes.bool.isRequired
