@@ -7,6 +7,7 @@
   "scripts": {
     "start:dev": "cross-env DEBUG=http,wss,stock,watch NODE_ENV=development && node index.js | pino-colada",
     "start": "cross-env NODE_ENV=production node index.js | pino-colada",
+    "start:pm2": "cross-env NODE_ENV=production node index.js",
     "build-all:dev": "cross-env NODE_ENV=development && npm-run-all clean build-js:dev build-css:dev",
     "build-all": "cross-env NODE_ENV=production && npm-run-all clean build-js build-css",
     "build-css:dev": "cross-env NODE_ENV=development && npx node-sass --source-map-embed --error-bell resources/assets/styles/app.sass | npx hashmark -l 8 'public/app-{hash}.css' --silent",
