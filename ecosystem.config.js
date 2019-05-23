@@ -3,7 +3,7 @@ module.exports = {
     name: 'market-insight',
     script: 'npm',
     // Options reference: https://pm2.io/doc/en/runtime/reference/ecosystem-file/
-    args: ['run', 'start:pm2'],
+    args: 'start',
     instances: 'max',
     autorestart: true,
     watch: false,
