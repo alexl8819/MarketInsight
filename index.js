@@ -24,12 +24,15 @@ const debug = require('debug')('http');
 const middleware = require('./lib/http/middleware').default;
 const router = require('./lib/http/router');
 const MarketWatch = require('./lib/watch');
+const { 
+  MAIN_ASSET_PATH, 
+  ASSET_ROUTE 
+} = require('./lib/constants');
 
 const app = express();
 
 app.use(middleware);
-app.use('/static', express.static(join(__dirname, 'public')));
-
+app.use(ASSET_ROUTE, express.static(MAIN_ASSET_PATH));
 app.use(router);
 
 const server = createServer(
@@ -38,8 +41,11 @@ const server = createServer(
     cert: readFileSync(process.env.CERT_PATH)
   } : require('spdy-keys'), app);
 const bound = server.listen(process.env.PORT || 9000, 
-  MarketWatch.start({
-    perMessageDeflate: true,
-    server
-  }, () => debug(`Listening on port ${bound.address().port}`))
-);
+  async () => {
+    const _ = await MarketWatch.start({
+      perMessageDeflate: true,
+      server
+    });
+    // Display port
+    debug(`Listening on port ${bound.address().port}`);
+  });

@@ -10,6 +10,7 @@ module.exports = {
     max_memory_restart: '100M',
     env: {
       NODE_ENV: 'development',
+      DEBUG: 'http,wss,stock,watch'
     },
     env_production: {
       NODE_ENV: 'production'
