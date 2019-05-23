@@ -12,7 +12,7 @@
     "build-css:dev": "cross-env NODE_ENV=development && npx node-sass --source-map-embed --error-bell resources/assets/styles/app.sass | npx hashmark -l 8 'public/app-{hash}.css' --silent",
     "build-css": "cross-env NODE_ENV=production && npx node-sass --sourcemap=none resources/assets/styles/app.sass | npx cleancss --inline local | npx hashmark -l 8 'public/app-{hash}.min.css' --silent",
     "build-js:dev": "cross-env NODE_ENV=development && npx browserify resources/assets/scripts/index.js -t sheetify -g unassertify | npx hashmark -l 8 'public/app-{hash}.js' --silent",
-    "build-js": "cross-env NODE_ENV=production && npx browserify --full-paths -t sheetify -g [ loose-envify --NODE_ENV production ] -g unassertify -g browserify-nodent -g [ bubleify --yes dangerousTaggedTemplateString --objectAssign='xtend' ] -g uglifyify resources/assets/scripts/index.js | npx hashmark -l 8 'public/app-{hash}.min.js' --silent",
+    "build-js": "cross-env NODE_ENV=production && npx browserify --full-paths -t sheetify -g [ loose-envify --NODE_ENV production ] -g unassertify -g browserify-nodent -g [ bubleify --yes dangerousForOf --yes dangerousTaggedTemplateString --objectAssign='xtend' ] -g uglifyify resources/assets/scripts/index.js | npx hashmark -l 8 'public/app-{hash}.min.js' --silent",
     "clean": "shx rm -f public/*.js public/*.css",
     "lint": "npx eslint lib/**/**.js resources/assets/scripts/**/**.js",
     "test": "jest"

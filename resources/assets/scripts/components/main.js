@@ -19,7 +19,7 @@ const { PureComponent } = require('react');
 const PropTypes = require('prop-types');
 const h = require('react-hyperscript');
 
-const { version } = require('../../../../package.json');
+const { APP_VERSION } = require('../../../../lib/constants');
 
 const Navigation = require('./navigation');
 const { 
@@ -54,7 +54,7 @@ class Main extends PureComponent {
         ])
       ),
       h('footer.footer', {}, 
-        h('div.content.has-background-white.has-text-centered', {}, h('p', {}, h('small', {}, `v${version}`))))
+        h('div.content.has-background-white.has-text-centered', {}, h('p', {}, h('small', {}, `v${APP_VERSION}`))))
     ]) : h(Loading, {});
   }
 }

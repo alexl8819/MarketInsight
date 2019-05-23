@@ -51,7 +51,8 @@ const websocketHandler = (store) => (next) => async (action) => {
     }
     // Attempt to connect to the server
     try {
-      session = await ClientSession.connect(`wss://${action.location}`);
+      const connectPromise = ClientSession.connect(`wss://${action.location}`);
+      session = await connectPromise;
     } catch (err) {
       store.dispatch(updateAlertStatus({
         message: 'Network connection failed',
@@ -62,7 +63,9 @@ const websocketHandler = (store) => (next) => async (action) => {
     }
     // Handle all sync messages
     session.on('sync', (message) => {
-      if (SyncMessage.validate(message)) {
+      const syncMessage = new SyncMessage(message);
+      // Validate incoming message
+      if (syncMessage.validate()) {
         store.dispatch(runSync(message));
       }
     });

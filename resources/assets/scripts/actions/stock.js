@@ -25,8 +25,10 @@ const {
   //  pipe,
   //  concat,
   //  sort,
+  forEach,
   map,
   filter,
+  length,
   assoc,
   difference,
   StrictObjectSet
@@ -99,7 +101,7 @@ const resync = (symbols) => ({
 });
 
 // ActionCreators
-const _chooseActive = () => async (dispatch, getState) => {
+const _chooseActive = () => (dispatch, getState) => {
   const { stocks, active } = getState();
   let current;
 
@@ -116,7 +118,7 @@ const _chooseActive = () => async (dispatch, getState) => {
   dispatch(markActive(symbol));
 };
 
-const _doReset = () => async (dispatch, getState) => {
+const _doReset = () => (dispatch, getState) => {
   const { stocks } = getState();
 
   dispatch(sync(
@@ -134,9 +136,10 @@ const runSymbolQuery = (query) => async (dispatch) => {
   dispatch(_doReset());
   //
   try {
-    results = await fetchJSON(
+    const matchResultsPromise = fetchJSON(
       `https://${window.location.host}/stock/1.0/${query}/match`
     );
+    results = await matchResultsPromise;
   } catch (err) {
     // TODO: only errors should be network related
     // TODO: dispatch request fail
@@ -172,9 +175,10 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
   dispatch(updateLoadingStatus(true));
   //
   try {
-    batchResults = await fetchJSON(
+    const batchResultsPromise = fetchJSON(
       `https://${window.location.host}/stock/1.0/${normalizedSymbol}/batchSummary`
     );
+    batchResults = await batchResultsPromise;
   } catch (err) {
     batchResults = {};
   }
@@ -209,16 +213,16 @@ const runSync = (symbols) => async (dispatch, getState) => {
     dispatch(updateReadyStatus(false));
   }
   
-  if (normalized.length && active === null) {
+  if (length(normalized) && active === null) {
     dispatch(markActive(symbols[0]));
   }
 
-  const curSymbols = stocks.toArray().map((stock) => stock.company.symbol);
+  const curSymbols = map((stock) => stock.company.symbol, stocks.toArray());
   const rmDiff = difference(curSymbols, symbols);
   const addDiff = difference(symbols, curSymbols);
   
-  rmDiff.forEach((symbol) => dispatch(updateAlertStatus({ message: `Removed ${symbol} from watchlist` })));
-  addDiff.forEach((symbol) => dispatch(updateAlertStatus({ message: `Added ${symbol} to watchlist`})));
+  forEach((symbol) => dispatch(updateAlertStatus({ message: `Removed ${symbol} from watchlist` })), rmDiff);
+  forEach((symbol) => dispatch(updateAlertStatus({ message: `Added ${symbol} to watchlist`})), addDiff);
   //
   try {
     batchResults = await fetchJSON(
@@ -244,13 +248,13 @@ const runSync = (symbols) => async (dispatch, getState) => {
   dispatch(updateReadyStatus(true));
 };
 
-const forceResync = (symbol, shouldRemove) => async(dispatch, getState) => {
+const forceResync = (symbol, shouldRemove) => (dispatch, getState) => {
   const { stocks } = getState();
   
   const symbols = stocks.toArray()
     .filter((stock) => stock.subscribed)
     .map((stock) => stock.company.symbol);
-  
+
   dispatch(updateReadyStatus(false));
   
   const updated = shouldRemove ? symbols.filter((subbed) => symbol !== subbed) : symbols.concat(symbol);
