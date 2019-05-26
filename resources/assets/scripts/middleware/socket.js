@@ -62,36 +62,49 @@ const websocketHandler = (store) => (next) => async (action) => {
       setTimeout(() => store.dispatch(updateConnectionStatus(false)), 2000);
       return;
     }
+    // Send online update
+    store.dispatch(updateConnectionStatus(true));
     // Handle all sync messages
-    session.on('sync', (message) => {
-      // Validate incoming message
+    const syncMessageIteratorPromise = pEvent.iterator(session, 'sync');
+    const syncMessageIterator = await syncMessageIteratorPromise;
+    for (const message of syncMessageIterator) {
+      // Validate all incoming sync messages
       if (SyncMessage.validate(message)) {
         store.dispatch(runSync(message));
       }
-    });
+    }
+    // Handle all error messages
+    const errorMessageIteratorPromise = pEvent.iterator(session, 'error');
+    const errorMessageIterator = await errorMessageIteratorPromise;
+    for (const errorMessage of errorMessageIterator) {
+      // Validate error messages
+      if (ErrorMessage.validate(errorMessage)) {
+        store.dispatch(updateAlertStatus({
+          message: errorMessage.message,
+          isError: true
+        }));
+      }
+    }
     // Handle disconnect updates
-    session.on('disconnect', () => {
+    const disconnectMessageIteratorPromise = pEvent.iterator(session, 'disconnect');
+    const disconnectMessageIterator = await disconnectMessageIteratorPromise;
+    for (const disconnectMessage of disconnectMessageIterator) {
       store.dispatch(updateAlertStatus({
         message: 'Network disconnection occured',
         isError: true
       }));
       setTimeout(() => store.dispatch(updateConnectionStatus(false)), 2000);
-    });
+    }
     // Handle reconnect updates
-    session.on('reconnect', () => store.dispatch(updateConnectionStatus(true)));
-    // Handle errors message
-    session.on('error', (error) => {
-      if (ErrorMessage.validate(error)) {
-        store.dispatch(updateAlertStatus({
-          message: error.message,
-          isError: true
-        }));
-      }
-    });
+    const reconnectMessageIteratorPromise = pEvent.iterator(session, 'reconnect');
+    const reconnectMessageIterator = await reconnectMessageIteratorPromise;
+    for (const reconnectMessage of reconnectMessageIterator) {
+      store.dispatch(updateConnectionStatus(true));
+    }
     // Handle cleanup
-    session.once('finish', () => store.dispatch(updateConnectionStatus(false)));
-    // Send online update
-    store.dispatch(updateConnectionStatus(true));
+    const finishPromise = pEvent(session, 'finish');
+    await finishPromise;
+    store.dispatch(updateConnectionStatus(false));
     break;
   case 'WS:FORCE_DISCONNECT': // Disconnect
     if (!session) {

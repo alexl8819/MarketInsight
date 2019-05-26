@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
+require('core-js/features/symbol');
+
 const { render } = require('react-dom');
 const h = require('react-hyperscript');
 

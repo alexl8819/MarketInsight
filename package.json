@@ -26,6 +26,7 @@
     "bulma-pageloader": "^2.1.0",
     "bulma-toast": "^1.4.0",
     "compression": "^1.7.3",
+    "core-js": "^3.1.2",
     "cross-fetch": "^2.2.2",
     "debounce": "^1.2.0",
     "delay": "^4.2.0",
