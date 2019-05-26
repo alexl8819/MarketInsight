@@ -12,7 +12,7 @@
     "build-css:dev": "cross-env NODE_ENV=development && npx node-sass --source-map-embed --error-bell resources/assets/styles/app.sass | npx hashmark -l 8 'public/app-{hash}.css' --silent",
     "build-css": "cross-env NODE_ENV=production && npx node-sass --sourcemap=none resources/assets/styles/app.sass | npx cleancss --inline local | npx hashmark -l 8 'public/app-{hash}.min.css' --silent",
     "build-js:dev": "cross-env NODE_ENV=development && npx browserify resources/assets/scripts/index.js -t sheetify -g unassertify | npx hashmark -l 8 'public/app-{hash}.js' --silent",
-    "build-js": "cross-env NODE_ENV=production && npx browserify --full-paths -t sheetify -g [ loose-envify --NODE_ENV production ] -g unassertify -g browserify-nodent -g [ bubleify --yes dangerousForOf --yes dangerousTaggedTemplateString --objectAssign='xtend' ] -g uglifyify resources/assets/scripts/index.js | npx hashmark -l 8 'public/app-{hash}.min.js' --silent",
+    "build-js": "cross-env NODE_ENV=production && npx browserify --full-paths -t sheetify -g [ loose-envify --NODE_ENV production ] -g unassertify -g [ babelify --presets [ @babel/preset-env ] --plugins [ @babel/transform-runtime --polyfill=false --regenerator=true ] ] -g uglifyify resources/assets/scripts/index.js | npx hashmark -l 8 'public/app-{hash}.min.js' --silent",
     "clean": "shx rm -f public/*.js public/*.css",
     "lint": "npx eslint lib/**/**.js resources/assets/scripts/**/**.js",
     "test": "jest"
@@ -25,11 +25,9 @@
     "bulma-pageloader": "^2.1.0",
     "bulma-toast": "^1.4.0",
     "compression": "^1.7.3",
-    "core-js": "^2.5.7",
     "cross-fetch": "^2.2.2",
     "debounce": "^1.2.0",
     "end-of-stream": "^1.4.1",
-    "es6-promisify": "^6.0.1",
     "express": "^4.16.4",
     "express-async-handler": "^1.1.4",
     "express-pino-logger": "^3.0.2",
@@ -39,6 +37,7 @@
     "is-my-json-valid": "^2.19.0",
     "lru": "^3.1.0",
     "p-event": "^4.1.0",
+    "p-timeout": "^3.1.0",
     "pify": "^4.0.1",
     "prop-types": "^15.6.2",
     "pump": "^3.0.0",
@@ -58,10 +57,12 @@
     "trie-search": "^1.2.8"
   },
   "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-transform-runtime": "^7.4.4",
+    "@babel/preset-env": "^7.4.5",
+    "babelify": "^10.0.0",
     "browserify": "^16.2.3",
-    "browserify-nodent": "^1.0.22",
     "browserify-shim": "^3.8.14",
-    "bubleify": "^1.2.0",
     "clean-css-cli": "^4.2.1",
     "cross-env": "^5.2.0",
     "enzyme": "^3.8.0",
@@ -78,10 +79,15 @@
     "shx": "^0.3.2",
     "spdy-keys": "0.0.0",
     "uglifyify": "^5.0.1",
-    "unassertify": "^2.1.1",
-    "xtend": "^4.0.1"
+    "unassertify": "^2.1.1"
   },
   "engines": {
     "node": ">=8.2.1"
-  }
+  },
+  "browserslist": [
+    "> 0.5%",
+    "Firefox ESR",
+    "since 2015",
+    "not dead"
+  ]
 }
