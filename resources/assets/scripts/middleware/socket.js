@@ -16,13 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
 const { WEBSOCKET_SUPPORT } = require('simple-websocket');
+const pEvent = require('p-event');
+
 const {
   updateConnectionStatus, 
   updateReadyStatus, 
   updateAlertStatus,
   runSync 
 } = require('../actions');
-
 const { ClientSession } = require('../../../../lib/network/session');
 const {
   SyncMessage,
@@ -63,9 +64,8 @@ const websocketHandler = (store) => (next) => async (action) => {
     }
     // Handle all sync messages
     session.on('sync', (message) => {
-      const syncMessage = new SyncMessage(message);
       // Validate incoming message
-      if (syncMessage.validate()) {
+      if (SyncMessage.validate(message)) {
         store.dispatch(runSync(message));
       }
     });

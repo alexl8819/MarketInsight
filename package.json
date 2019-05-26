@@ -12,7 +12,7 @@
     "build-css:dev": "cross-env NODE_ENV=development && npx node-sass --source-map-embed --error-bell resources/assets/styles/app.sass | npx hashmark -l 8 'public/app-{hash}.css' --silent",
     "build-css": "cross-env NODE_ENV=production && npx node-sass --sourcemap=none resources/assets/styles/app.sass | npx cleancss --inline local | npx hashmark -l 8 'public/app-{hash}.min.css' --silent",
     "build-js:dev": "cross-env NODE_ENV=development && npx browserify resources/assets/scripts/index.js -t sheetify -g unassertify | npx hashmark -l 8 'public/app-{hash}.js' --silent",
-    "build-js": "cross-env NODE_ENV=production && npx browserify --full-paths -t sheetify -g [ loose-envify --NODE_ENV production ] -g unassertify -g [ babelify --presets [ @babel/preset-env ] --plugins [ @babel/transform-runtime --polyfill=false --regenerator=true ] ] -g uglifyify resources/assets/scripts/index.js | npx hashmark -l 8 'public/app-{hash}.min.js' --silent",
+    "build-js": "cross-env NODE_ENV=production && npx browserify --full-paths -t sheetify -g [ loose-envify --NODE_ENV production ] -g unassertify -g babelify -g uglifyify resources/assets/scripts/index.js | npx hashmark -l 8 'public/app-{hash}.min.js' --silent",
     "clean": "shx rm -f public/*.js public/*.css",
     "lint": "npx eslint lib/**/**.js resources/assets/scripts/**/**.js",
     "test": "jest"
@@ -20,6 +20,7 @@
   "author": "idealwebsolutions",
   "license": "AGPL-3.0-only",
   "dependencies": {
+    "@babel/runtime": "^7.4.5",
     "approximate-number": "^2.0.0",
     "bulma": "^0.7.2",
     "bulma-pageloader": "^2.1.0",
@@ -27,6 +28,7 @@
     "compression": "^1.7.3",
     "cross-fetch": "^2.2.2",
     "debounce": "^1.2.0",
+    "delay": "^4.2.0",
     "end-of-stream": "^1.4.1",
     "express": "^4.16.4",
     "express-async-handler": "^1.1.4",
