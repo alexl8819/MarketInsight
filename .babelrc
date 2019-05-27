@@ -1,12 +1,18 @@
 {
   "presets": [
-    "@babel/preset-env"
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": "usage",
+        "corejs": 3
+      }
+    ]
   ],
   "ignore": [
     "/[\/\\]core-js/", 
     "/@babel[\/\\]runtime/"
   ],
   "plugins": [
-    "@babel/transform-runtime"    
+    "@babel/transform-runtime"
   ]
 }

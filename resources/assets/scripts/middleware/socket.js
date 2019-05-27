@@ -65,18 +65,43 @@ const websocketHandler = (store) => (next) => async (action) => {
     // Send online update
     store.dispatch(updateConnectionStatus(true));
     // Handle all sync messages
-    const syncMessageIteratorPromise = pEvent.iterator(session, 'sync');
-    const syncMessageIterator = await syncMessageIteratorPromise;
-    for (const message of syncMessageIterator) {
+    const syncMessageIteratorPromise = pEvent.iterator(session, 'sync', {
+      rejectionEvents: [],
+      resolutionEvents: []
+    });/*
+    // Handle all error messages
+    const errorMessageIteratorPromise = pEvent.iterator(session, 'error', {
+      rejectionEvents: []
+    });*/
+    
+    const allIteratorPromises = await Promise.all([syncMessageIteratorPromise]);
+    // const syncMessageIterator = await syncMessageIteratorPromise;
+    // const errorMessageIterator = await errorMessageIteratorPromise;
+    for (const iterator of allIteratorPromises) {
+      try {
+        for await (const message of iterator) {
+          if (SyncMessage.validate(message)) {
+            store.dispatch(runSync(message));
+          } else if (ErrorMessage.validate(message)) {
+            store.dispatch(updateAlertStatus({
+              message: message.message,
+              isError: true
+            }));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    
+    /*
+    for await (const message of syncMessageIterator) {
       // Validate all incoming sync messages
       if (SyncMessage.validate(message)) {
         store.dispatch(runSync(message));
       }
     }
-    // Handle all error messages
-    const errorMessageIteratorPromise = pEvent.iterator(session, 'error');
-    const errorMessageIterator = await errorMessageIteratorPromise;
-    for (const errorMessage of errorMessageIterator) {
+    for await (const errorMessage of errorMessageIterator) {
       // Validate error messages
       if (ErrorMessage.validate(errorMessage)) {
         store.dispatch(updateAlertStatus({
@@ -86,9 +111,11 @@ const websocketHandler = (store) => (next) => async (action) => {
       }
     }
     // Handle disconnect updates
-    const disconnectMessageIteratorPromise = pEvent.iterator(session, 'disconnect');
+    const disconnectMessageIteratorPromise = pEvent.iterator(session, 'disconnect', {
+      rejectionEvents: ['finish']
+    });
     const disconnectMessageIterator = await disconnectMessageIteratorPromise;
-    for (const disconnectMessage of disconnectMessageIterator) {
+    for await (const disconnectMessage of disconnectMessageIterator) {
       store.dispatch(updateAlertStatus({
         message: 'Network disconnection occured',
         isError: true
@@ -96,15 +123,17 @@ const websocketHandler = (store) => (next) => async (action) => {
       setTimeout(() => store.dispatch(updateConnectionStatus(false)), 2000);
     }
     // Handle reconnect updates
-    const reconnectMessageIteratorPromise = pEvent.iterator(session, 'reconnect');
+    const reconnectMessageIteratorPromise = pEvent.iterator(session, 'reconnect', {
+      rejectionEvents: ['finish']
+    });
     const reconnectMessageIterator = await reconnectMessageIteratorPromise;
-    for (const reconnectMessage of reconnectMessageIterator) {
+    for await (const reconnectMessage of reconnectMessageIterator) {
       store.dispatch(updateConnectionStatus(true));
     }
     // Handle cleanup
     const finishPromise = pEvent(session, 'finish');
     await finishPromise;
-    store.dispatch(updateConnectionStatus(false));
+    store.dispatch(updateConnectionStatus(false));*/
     break;
   case 'WS:FORCE_DISCONNECT': // Disconnect
     if (!session) {
