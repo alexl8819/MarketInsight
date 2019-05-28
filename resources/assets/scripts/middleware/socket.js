@@ -17,6 +17,7 @@
 **/
 const { WEBSOCKET_SUPPORT } = require('simple-websocket');
 const pEvent = require('p-event');
+const delay = require('delay');
 const merge = require('merge-async-iterators');
 
 const {
@@ -60,7 +61,8 @@ const websocketHandler = (store) => (next) => async (action) => {
         message: 'Network connection failed',
         isError: true
       }));
-      setTimeout(() => store.dispatch(updateConnectionStatus(false)), 2000);
+      await delay(2000);
+      store.dispatch(updateConnectionStatus(false));
       return;
     }
     // Send online update
@@ -90,7 +92,7 @@ const websocketHandler = (store) => (next) => async (action) => {
     const errorMessageIterator = await errorMessageIteratorPromise;
     const disconnectMessageIterator = await disconnectMessageIteratorPromise;
     const reconnectMessageIterator = await reconnectMessageIteratorPromise;
-    // Promise.all
+    // TODO: better iterator detection instead of comparison
     try {
       for await (const {iterator, value} of merge([
         syncMessageIterator, 
@@ -118,7 +120,8 @@ const websocketHandler = (store) => (next) => async (action) => {
             message: 'Network disconnection occured',
             isError: true
           }));
-          setTimeout(() => store.dispatch(updateConnectionStatus(false)), 2000);
+          await delay(2000);
+          store.dispatch(updateConnectionStatus(false));
         }
 
         if (iterator === reconnectMessageIterator) {
@@ -165,7 +168,7 @@ const websocketHandler = (store) => (next) => async (action) => {
   default:
     break;
   }
-
+  // Execute next action
   next(action);
 };
 
