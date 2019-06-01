@@ -21,9 +21,12 @@ const h = require('react-hyperscript');
 const css = require('sheetify');
 
 const { 
-  assoc, 
+  assoc,
+  isNil,
   minimizeText 
 } = require('../../../../lib/util');
+
+const Summary = require('./summary');
 
 const customStockStyle = css`
   :host {
@@ -125,6 +128,10 @@ Stock.propTypes = {
   selected: PropTypes.bool.isRequired
 };
 
+const StockDetailedDisplay = (props) => {
+  return isNil(props.selected) ? h('div') : h(Summary, props);
+}
+
 const customListStyle = css`
   :host > .is-disabled {
     opacity: 0.5;
@@ -139,8 +146,12 @@ const customListStyle = css`
 class StocksList extends PureComponent {
   render () {
     const { stocks, loading } = this.props;
-     
-    return loading ? null : h('aside.menu', {},
+    
+    if (loading) {
+      return null;
+    }
+
+    return h('aside.menu', {},
       h('ul.menu-list.has-background-white', {
         className: customListStyle
       }, stocks.map(
@@ -161,5 +172,6 @@ StocksList.propTypes = {
 
 module.exports = { 
   Stock,
+  StockDetailedDisplay,
   StocksList
 };

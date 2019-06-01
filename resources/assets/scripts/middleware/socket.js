@@ -107,6 +107,7 @@ const websocketHandler = (store) => (next) => async (action) => {
         }
 
         if (iterator === errorMessageIterator) {
+          console.log('here')
           if (ErrorMessage.validate(value)) {
             store.dispatch(updateAlertStatus({
               message: value.message,

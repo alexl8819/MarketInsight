@@ -20,6 +20,7 @@ const {
   validateJSON,
   uppercaseArray,
   toUpper,
+  isNil,
   //  isEmpty,
   //  find,
   //  pipe,
@@ -105,7 +106,11 @@ const _chooseActive = () => (dispatch, getState) => {
   const { stocks, active } = getState();
   let current;
 
-  if (active !== null) {
+  if (!length(stocks.size)) {
+    return;
+  }
+
+  if (!isNil(active)) {
     current = stocks.toArray().find(
       (stock) => stock.company.symbol === active
     );
@@ -208,6 +213,10 @@ const runSync = (symbols) => async (dispatch, getState) => {
   const { stocks, active } = getState();
   const normalized = uppercaseArray(symbols);
   let batchResults;
+  
+  if (!length(normalized)) {
+    return dispatch(updateReadyStatus(true));
+  }
   //
   if (!stocks.size) {
     dispatch(updateReadyStatus(false));

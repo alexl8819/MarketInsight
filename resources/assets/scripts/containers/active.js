@@ -19,7 +19,7 @@ const { connect } = require('react-redux');
 const { bindActionCreators } = require('redux');
 
 const { forceResync } = require('../actions');
-const Summary = require('../components/summary');
+const { StockDetailedDisplay } = require('../components/stock');
 
 // const { matchByKey } = require('../../../../lib/util');
 
@@ -44,4 +44,4 @@ const mapDispatcherToProps = (dispatch) => ({
 module.exports = connect(
   mapStateToProps,
   mapDispatcherToProps
-)(Summary);
+)(StockDetailedDisplay);

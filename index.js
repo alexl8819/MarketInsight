@@ -50,7 +50,7 @@ const bound = server.listen(process.env.PORT || 9000, () => {
     server
   };
 
-  process.env.NODE_ENV === 'production' ? 
-    RedisMarketWatchStore.start(config) : BasicMarketWatchStore.start(config);
+  //process.env.NODE_ENV === 'production' ? 
+  RedisMarketWatchStore.start(config)// : BasicMarketWatchStore.start(config);
   debug(`Listening on port ${bound.address().port}`);
 });
