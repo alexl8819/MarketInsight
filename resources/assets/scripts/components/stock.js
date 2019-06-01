@@ -26,7 +26,10 @@ const {
   minimizeText 
 } = require('../../../../lib/util');
 
+const { DEFAULT_PLACEHOLDER_MESSAGE } = require('../../../../lib/constants');
+
 const Summary = require('./summary');
+const Placeholder = require('./placeholder');
 
 const customStockStyle = css`
   :host {
@@ -129,7 +132,9 @@ Stock.propTypes = {
 };
 
 const StockDetailedDisplay = (props) => {
-  return isNil(props.selected) ? h('div') : h(Summary, props);
+  return isNil(props.selected) ? h(Placeholder, {
+    message: DEFAULT_PLACEHOLDER_MESSAGE
+  }) : h(Summary, props);
 }
 
 const customListStyle = css`
