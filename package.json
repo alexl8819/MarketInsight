@@ -5,7 +5,7 @@
   "description": "View and share stocks in realtime",
   "main": "index.js",
   "scripts": {
-    "start:dev": "cross-env DEBUG=http,wss,stock,watch NODE_ENV=development && node index.js | pino-colada",
+    "start:dev": "cross-env DEBUG=http,wss,stock,store NODE_ENV=development && node index.js | pino-colada",
     "start": "node index.js",
     "build-all:dev": "cross-env NODE_ENV=development && npm-run-all clean build-js:dev build-css:dev",
     "build-all": "cross-env NODE_ENV=production && npm-run-all clean build-js build-css",

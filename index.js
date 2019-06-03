@@ -21,6 +21,7 @@ const { createServer } = require('spdy');
 const express = require('express');
 const debug = require('debug')('http');
 
+const { tradeableSymbols } = require('./lib/stock');
 const middleware = require('./lib/http/middleware').default;
 const router = require('./lib/http/router');
 const { 
@@ -44,13 +45,15 @@ const server = createServer(
     cert: readFileSync(process.env.CERT_PATH)
   } : require('spdy-keys'), app);
 
-const bound = server.listen(process.env.PORT || 9000, () => {
-  const config = {
+const bound = server.listen(process.env.PORT || 9000, async () => {
+  const config = Object.freeze({
     perMessageDeflate: true,
     server
-  };
-
+  });
+  // Update known symbol list
+  await tradeableSymbols.update();
   //process.env.NODE_ENV === 'production' ? 
-  RedisMarketWatchStore.start(config)// : BasicMarketWatchStore.start(config);
+  // RedisMarketWatchStore.start(config)// : 
+  BasicMarketWatchStore.start(config);
   debug(`Listening on port ${bound.address().port}`);
 });
