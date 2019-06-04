@@ -83,20 +83,20 @@ class Stock extends PureComponent {
     const { company, quote, selected } = this.props;
     const { symbol, companyName } = company;
     const { change, latestPrice } = quote;
-    return h(`li.is-radiusless${selected ? '.active' : ''}.has-background-${selected ? 'white' : 'primary'}` +
+    return h(`li.is-unselectable.is-radiusless${selected ? '.active' : ''}.has-background-${selected ? 'white' : 'primary'}` +
       `${(this.state.disabled || selected) ? '.is-disabled' : ''}`, {
       className: customStockStyle
     },
     h('a', {
       href: '#',
       onClick: this._handleClick(symbol)
-    }, h('div.columns', {}, [
-      h('div.column.is-three-fifths', {}, [
+    }, h('div.columns.is-mobile', {}, [
+      h('div.column.is-three-fifths', {}, [ // is-two-thirds
         h('span.title.is-6.is-uppercase', symbol),
         h('div.columns', {},
           h('div.column', {},
             h('p.subtitle.is-7', {},
-              minimizeText(companyName, 32, 32)
+              minimizeText(companyName, 21, 24)
             )
           )
         )

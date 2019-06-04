@@ -26,8 +26,10 @@ const Article = require('./article');
 const { minimizeText } = require('../../../../lib/util');
 
 const customComponentStyle = css`
-  :host {
-    padding: 0.8rem 1.5rem;
+  @media screen and (min-width: 769px) {
+    :host {
+      padding: 0.8rem 1.5rem;
+    }
   }
 
   :host > .columns {
