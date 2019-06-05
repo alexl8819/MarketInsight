@@ -22,18 +22,18 @@ const {
   uppercaseArray,
   toUpper,
   isString,
+  isStringArray,
   isNil,
-  //  isEmpty,
   find,
-  //  pipe,
-  //  concat,
-  //  sort,
+  concat,
+  sort,
   forEach,
   map,
   filter,
   length,
   assoc,
   difference,
+  removeItemBySlice,
   SortedStringSet,
   StrictObjectSet
 } = require('../../../../lib/util');
@@ -143,7 +143,7 @@ const _applySubscribeOnlyFilter = () => (dispatch, getState) => {
 
 // Runs a query for symbols
 const runSymbolQuery = (query) => async (dispatch) => {
-  ok(isString(query), 'is not a string');
+  ok(isString(query), 'query is not a string');
   
   dispatch(updateLoadingStatus(true));
   dispatch(_chooseActiveSymbol());
@@ -163,14 +163,13 @@ const runSymbolQuery = (query) => async (dispatch) => {
   }
 
   if (!validateJSON(SYMBOL_QUERY_SCHEMA, results)) {
-    if (results.error) {
-      dispatch(applyResults(new StrictObjectSet([])));
-    } else {
-      dispatch(updateAlertStatus({
+    dispatch(results.error ? 
+      applyResults(new StrictObjectSet([])) : 
+      updateAlertStatus({
         message: 'Something went wrong. Please try again',
         isError: true
-      }));
-    }
+      })
+    );
   } else {
     dispatch(applyResults(new StrictObjectSet(results)));
   }
@@ -180,12 +179,15 @@ const runSymbolQuery = (query) => async (dispatch) => {
 
 // Fetchs summary of the currently active stock
 const fetchSummary = (symbol) => async (dispatch, getState) => {
+  ok(isString(symbol), 'symbol is not a string');
+  
   const { stocks } = getState();
   const normalizedSymbol = toUpper(symbol);
   //
   dispatch(updateLoadingStatus(true));
   //
   let batchResults;
+  //
   try {
     const batchResultsPromise = fetchJSON(
       `https://${window.location.host}/stock/1.0/${normalizedSymbol}/batchSummary`
@@ -194,25 +196,37 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
   } catch (err) {
     batchResults = {};
   }
-  
+  // 
   if (!validateJSON(BATCH_SUMMARY_SCHEMA, batchResults)) {
     dispatch(updateAlertStatus({
       message: 'Something went wrong. Please try again.',
       isError: true
     }));
   } else {
+    // Find stock from symbol
     const selected = find((stock) => stock.company.symbol === normalizedSymbol, stocks.toArray());
-    const isSubscribed = selected ? selected.subscribed : false;
-
-    dispatch(sync(new StrictObjectSet(
-      stocks.toArray().filter(
-        (stock) => stock.company.symbol !== batchResults[0].company.symbol
-      )
-      // Add summary to stock
-        .concat(assoc('subscribed', isSubscribed, batchResults[0]))
-      // Sort by symbol a-z
-        .sort((a, b) => b.company.symbol < a.company.symbol)
-    )));
+    // Apply summary on selected stock and sort list
+    dispatch(
+      sync(
+        new StrictObjectSet(
+          sort(
+            (a, b) => a.company.symbol.localeCompare(b.company.symbol),
+            concat(
+            [
+              assoc(
+                'subscribed', 
+                selected ? selected.subscribed : false,
+                batchResults[0]
+              )
+            ], 
+            filter(
+              (stock) => stock.company.symbol !== batchResults[0].company.symbol, 
+              stocks.toArray()
+            )
+          )
+        )
+      ))
+    );
     dispatch(markActive(symbol));
   }
   // Reset loading state
@@ -220,67 +234,72 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
 };
 
 const runSync = (symbols) => async (dispatch, getState) => {
+  ok(isStringArray(symbols), 'symbols is not a string array');
+  //
   const { stocks, active } = getState();
+  // Normalize all symbols
   const normalized = uppercaseArray(symbols);
-  let batchResults;
-
+  // TODO:
   if (!length(normalized)) {
     dispatch(markActive(null));
     return dispatch(updateReadyStatus(true));
   }
-  //
+  // TODO:
   if (!stocks.size) {
     dispatch(updateReadyStatus(false));
   }
-  
+  // TODO: use isEmpty
   if (length(normalized) && isNil(active)) {
     dispatch(markActive(symbols[0]));
   }
-
+  // Create symbol list based on existing stocks
   const curSymbols = map((stock) => stock.company.symbol, stocks.toArray());
+  // Diff against each list
   const rmDiff = difference(curSymbols, symbols);
   const addDiff = difference(symbols, curSymbols);
-  
+  // Notify symbol adds/removals
   forEach((symbol) => dispatch(updateAlertStatus({ message: `Removed ${symbol} from watchlist` })), rmDiff);
   forEach((symbol) => dispatch(updateAlertStatus({ message: `Added ${symbol} to watchlist`})), addDiff);
   //
+  let batchResults;
+  // Fetch batch summaries
   try {
-    batchResults = await fetchJSON(
+    const batchResultsPromise = fetchJSON(
       `https://${window.location.host}/stock/1.0/${normalized.join(',')}/batchSummary`
     );
+    batchResults = await batchResultsPromise;
   } catch (err) {
     batchResults = {};
   }
-  
+  // Validate results match expected structure
   if (!validateJSON(BATCH_SUMMARY_SCHEMA, batchResults)) {
     dispatch(updateAlertStatus({
       message: 'Something went wrong. Please try again',
       isError: true
     }));
   } else {
+    // Create new subscription list
     dispatch(sync(new StrictObjectSet(map(
       (result) => assoc('subscribed', true, result), 
       batchResults
     ))));
+    // Choose active symbol
     dispatch(_chooseActiveSymbol());
   }
-  //
+  // Finish
   dispatch(updateReadyStatus(true));
 };
 
 // User action forced resync
 const forceResync = (symbol, remove) => (dispatch, getState) => {
   const { stocks } = getState();
-  
+  // Dispatch non-ready status
   dispatch(updateReadyStatus(false));
-  
-  // Build set of symbols
+  // Build filtered set of symbols based on subscription
   const symbols = map((stock) => stock.company.symbol, filter((stock) => stock.subscribed, stocks.toArray()));
-  
-  // Modify list
-  const modified = remove ? symbols.filter((subbed) => symbol !== subbed) : symbols.concat(symbol);
-
-  dispatch(resync(modified));
+  // Modify list and resync
+  dispatch(resync(remove ? removeItemBySlice(symbol, symbols) : concat([symbol], symbols)));
+  // Finish
   dispatch(updateReadyStatus(true));
 };
 
