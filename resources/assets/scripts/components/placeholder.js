@@ -20,7 +20,7 @@ const h = require('react-hyperscript');
 
 const Placeholder = (props) => {
   const { message } = props;
-  return h('div.message', {}, h('div.message-body', {}, message));
+  return h('div.message', {}, h('div.message-body.has-text-centered', {}, message));
 };
 
 Placeholder.propTypes = {

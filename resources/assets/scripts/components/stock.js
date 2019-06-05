@@ -132,9 +132,9 @@ Stock.propTypes = {
 };
 
 const StockDetailedDisplay = (props) => {
-  return isNil(props.selected) ? h(Placeholder, {
+  return isNil(props.selected) ? h('section.section', {}, h(Placeholder, {
     message: DEFAULT_PLACEHOLDER_MESSAGE
-  }) : h(Summary, props);
+  })) : h(Summary, props);
 }
 
 const customListStyle = css`

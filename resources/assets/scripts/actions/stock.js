@@ -15,14 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
+const ok = require('assert');
 const { 
   fetchJSON, 
   validateJSON,
   uppercaseArray,
   toUpper,
+  isString,
   isNil,
   //  isEmpty,
-  //  find,
+  find,
   //  pipe,
   //  concat,
   //  sort,
@@ -32,6 +34,7 @@ const {
   length,
   assoc,
   difference,
+  SortedStringSet,
   StrictObjectSet
 } = require('../../../../lib/util');
 
@@ -102,30 +105,35 @@ const resync = (symbols) => ({
 });
 
 // ActionCreators
-const _chooseActive = () => (dispatch, getState) => {
+// Chooses the next active symbol
+const _chooseActiveSymbol = () => (dispatch, getState) => {
   const { stocks, active } = getState();
-  let current;
-
+  
+  // Do not mark any symbols active if no stocks exist
   if (!length(stocks.size)) {
     return;
   }
 
+  let current;
+  
+  // If the previous active symbol is not nil, find stock
   if (!isNil(active)) {
-    current = stocks.toArray().find(
-      (stock) => stock.company.symbol === active
-    );
+    current = find((stock) => stock.company.symbol === active, stocks.toArray());
   }
-
-  const symbol = current && current.subscribed ? current.company.symbol : stocks.toArray().find(
-    (stock) => stock.subscribed
-  ).company.symbol;
-
-  dispatch(markActive(symbol));
+  
+  // If none was found, pick first matching symbol that is subscribed
+  if (isNil(current)) {
+    const firstMatch = find((stock) => stock.subscribed, stocks.toArray());
+    return dispatch(markActive(firstMatch.company.symbol));
+  }
+  
+  dispatch(markActive(current.company.symbol));
 };
 
-const _doReset = () => (dispatch, getState) => {
+// Resets stock set to filter
+const _applySubscribeOnlyFilter = () => (dispatch, getState) => {
   const { stocks } = getState();
-
+  
   dispatch(sync(
     new StrictObjectSet(
       filter((stock) => stock.subscribed, stocks.toArray())
@@ -133,12 +141,15 @@ const _doReset = () => (dispatch, getState) => {
   ));
 };
 
+// Runs a query for symbols
 const runSymbolQuery = (query) => async (dispatch) => {
-  let results;
-  //
+  ok(isString(query), 'is not a string');
+  
   dispatch(updateLoadingStatus(true));
-  dispatch(_chooseActive());
-  dispatch(_doReset());
+  dispatch(_chooseActiveSymbol());
+  dispatch(_applySubscribeOnlyFilter());
+
+  let results;
   //
   try {
     const matchResultsPromise = fetchJSON(
@@ -167,18 +178,14 @@ const runSymbolQuery = (query) => async (dispatch) => {
   dispatch(updateLoadingStatus(false));
 };
 
+// Fetchs summary of the currently active stock
 const fetchSummary = (symbol) => async (dispatch, getState) => {
   const { stocks } = getState();
   const normalizedSymbol = toUpper(symbol);
-  let batchResults;
-  //
-  const selected = stocks.toArray().find(
-    (stock) => stock.company.symbol === normalizedSymbol
-  );
-  const isSubscribed = selected ? selected.subscribed : false;
   //
   dispatch(updateLoadingStatus(true));
   //
+  let batchResults;
   try {
     const batchResultsPromise = fetchJSON(
       `https://${window.location.host}/stock/1.0/${normalizedSymbol}/batchSummary`
@@ -194,6 +201,9 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
       isError: true
     }));
   } else {
+    const selected = find((stock) => stock.company.symbol === normalizedSymbol, stocks.toArray());
+    const isSubscribed = selected ? selected.subscribed : false;
+
     dispatch(sync(new StrictObjectSet(
       stocks.toArray().filter(
         (stock) => stock.company.symbol !== batchResults[0].company.symbol
@@ -213,8 +223,9 @@ const runSync = (symbols) => async (dispatch, getState) => {
   const { stocks, active } = getState();
   const normalized = uppercaseArray(symbols);
   let batchResults;
-  
+
   if (!length(normalized)) {
+    dispatch(markActive(null));
     return dispatch(updateReadyStatus(true));
   }
   //
@@ -222,7 +233,7 @@ const runSync = (symbols) => async (dispatch, getState) => {
     dispatch(updateReadyStatus(false));
   }
   
-  if (length(normalized) && active === null) {
+  if (length(normalized) && isNil(active)) {
     dispatch(markActive(symbols[0]));
   }
 
@@ -251,24 +262,25 @@ const runSync = (symbols) => async (dispatch, getState) => {
       (result) => assoc('subscribed', true, result), 
       batchResults
     ))));
-    dispatch(_chooseActive());
+    dispatch(_chooseActiveSymbol());
   }
   //
   dispatch(updateReadyStatus(true));
 };
 
-const forceResync = (symbol, shouldRemove) => (dispatch, getState) => {
+// User action forced resync
+const forceResync = (symbol, remove) => (dispatch, getState) => {
   const { stocks } = getState();
   
-  const symbols = stocks.toArray()
-    .filter((stock) => stock.subscribed)
-    .map((stock) => stock.company.symbol);
-
   dispatch(updateReadyStatus(false));
   
-  const updated = shouldRemove ? symbols.filter((subbed) => symbol !== subbed) : symbols.concat(symbol);
+  // Build set of symbols
+  const symbols = map((stock) => stock.company.symbol, filter((stock) => stock.subscribed, stocks.toArray()));
+  
+  // Modify list
+  const modified = remove ? symbols.filter((subbed) => symbol !== subbed) : symbols.concat(symbol);
 
-  dispatch(resync(updated));
+  dispatch(resync(modified));
   dispatch(updateReadyStatus(true));
 };
 
