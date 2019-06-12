@@ -16,9 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
 const { WEBSOCKET_SUPPORT } = require('simple-websocket');
-const pEvent = require('p-event');
 const delay = require('delay');
-const merge = require('merge-async-iterators');
 
 const {
   updateConnectionStatus, 
@@ -54,8 +52,7 @@ const websocketHandler = (store) => (next) => async (action) => {
     }
     // Attempt to connect to the server
     try {
-      const connectPromise = ClientSession.connect(`wss://${action.location}`);
-      session = await connectPromise;
+      session = ClientSession.connect(`wss://${action.location}`);
     } catch (err) {
       store.dispatch(updateAlertStatus({
         message: 'Network connection failed',
@@ -67,75 +64,34 @@ const websocketHandler = (store) => (next) => async (action) => {
     }
     // Send online update
     store.dispatch(updateConnectionStatus(true));
-    // Handle all sync messages
-    const syncMessageIteratorPromise = pEvent.iterator(session, 'sync', {
-      rejectionEvents: [],
-      resolutionEvents: ['finish']
-    });
-    // Handle all error messages
-    const errorMessageIteratorPromise = pEvent.iterator(session, 'error', {
-      rejectionEvents: [],
-      resolutionEvents: ['finish']
-    });
-    // Handle all disconnect updates
-    const disconnectMessageIteratorPromise = pEvent.iterator(session, 'disconnect', {
-      rejectionEvents: [],
-      resolutionEvents: ['finish']
-    });
-    // Handle all reconnect updates
-    const reconnectMessageIteratorPromise = pEvent.iterator(session, 'reconnect', {
-      rejectionEvents: [],
-      resolutionEvents: ['finish']
-    });
-    
-    const syncMessageIterator = await syncMessageIteratorPromise;
-    const errorMessageIterator = await errorMessageIteratorPromise;
-    const disconnectMessageIterator = await disconnectMessageIteratorPromise;
-    const reconnectMessageIterator = await reconnectMessageIteratorPromise;
-    // TODO: better iterator detection instead of comparison
-    try {
-      for await (const {iterator, value} of merge([
-        syncMessageIterator, 
-        errorMessageIterator,
-        disconnectMessageIterator,
-        reconnectMessageIterator
-    ], { yieldIterator: true })) {
-        if (iterator === syncMessageIterator) {
-          if (SyncMessage.validate(value)) {
-            store.dispatch(runSync(value));
-          }
-        }
-
-        if (iterator === errorMessageIterator) {
-          console.log('here')
-          if (ErrorMessage.validate(value)) {
-            store.dispatch(updateAlertStatus({
-              message: value.message,
-              isError: true
-            }));
-          }
-        }
-
-        if (iterator === disconnectMessageIterator) {
-          store.dispatch(updateAlertStatus({
-            message: 'Network disconnection occured',
-            isError: true
-          }));
-          await delay(2000);
-          store.dispatch(updateConnectionStatus(false));
-        }
-
-        if (iterator === reconnectMessageIterator) {
-          store.dispatch(updateConnectionStatus(true));
-        }
+    // Handle sync events
+    session.on('sync', (message) => {
+      if (SyncMessage.validate(message)) {
+        store.dispatch(runSync(message));
       }
-    } catch (e) {
-      console.error(e)
-    }
+    });
+    // Handle error events
+    session.on('error', (error) => {
+      if (ErrorMessage.validate(error)) {
+        store.dispatch(updateAlertStatus({
+          message: error.message,
+          isError: true
+        }));
+      }
+    });
+    // Handle disconnect events
+    session.on('disconnect', async () => {
+      store.dispatch(updateAlertStatus({
+        message: 'Network disconnection occured',
+        isError: true
+      }));
+      await delay(2000);
+      store.dispatch(updateConnectionStatus(false));
+    });
+    // Handle reconnect events
+    session.on('reconnect', () => store.dispatch(updateConnectionStatus(true)));
     // Handle cleanup
-    const finishPromise = pEvent(session, 'finish');
-    await finishPromise;
-    store.dispatch(updateConnectionStatus(false));
+    session.once('finish', () => store.dispatch(updateConnectionStatus(false)));
     break;
   case 'WS:FORCE_DISCONNECT': // Disconnect
     if (!session) {

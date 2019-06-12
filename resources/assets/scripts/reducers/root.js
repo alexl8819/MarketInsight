@@ -15,10 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
-const {
-  assoc,
-  StrictObjectSet
-} = require('../../../../lib/util');
+const { assoc, StrictObjectSet } = require('../../../../lib/util');
 
 const {
   UPDATE_CONNECTION_STATUS,
