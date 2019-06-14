@@ -242,6 +242,7 @@ const runSync = (symbols) => async (dispatch, getState) => {
   // TODO:
   if (!length(normalized)) {
     dispatch(markActive(null));
+    dispatch(sync(new StrictObjectSet([])));
     return dispatch(updateReadyStatus(true));
   }
   // TODO:
@@ -299,6 +300,10 @@ const forceResync = (symbol, remove) => (dispatch, getState) => {
   const symbols = map((stock) => stock.company.symbol, filter((stock) => stock.subscribed, stocks.toArray()));
   // Modify list and resync
   dispatch(resync(remove ? removeItemBySlice(symbol, symbols) : concat([symbol], symbols)));
+  // Mark active entry as null on removals
+  if (remove) {
+    dispatch(markActive(null));
+  }
   // Finish
   dispatch(updateReadyStatus(true));
 };
