@@ -63,7 +63,10 @@ Article.propTypes = {
     image: PropTypes.string.isRequired,
     source: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired,
-    datetime: PropTypes.string.isRequired
+    datetime: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ])
   })
 };
 
