@@ -135,7 +135,7 @@ const StockDetailedDisplay = (props) => {
   return isNil(props.selected) ? h('section.section', {}, h(Placeholder, {
     message: DEFAULT_PLACEHOLDER_MESSAGE
   })) : h(Summary, props);
-}
+};
 
 const customListStyle = css`
   :host > .is-disabled {

@@ -34,7 +34,6 @@ const {
   assoc,
   difference,
   removeItemBySlice,
-  SortedStringSet,
   StrictObjectSet
 } = require('../../../../lib/util');
 
@@ -212,20 +211,21 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
           sort(
             (a, b) => a.company.symbol.localeCompare(b.company.symbol),
             concat(
-            [
-              assoc(
-                'subscribed', 
-                selected ? selected.subscribed : false,
-                batchResults[0]
+              [
+                assoc(
+                  'subscribed', 
+                  selected ? selected.subscribed : false,
+                  batchResults[0]
+                )
+              ], 
+              filter(
+                (stock) => stock.company.symbol !== batchResults[0].company.symbol, 
+                stocks.toArray()
               )
-            ], 
-            filter(
-              (stock) => stock.company.symbol !== batchResults[0].company.symbol, 
-              stocks.toArray()
             )
           )
         )
-      ))
+      )
     );
     dispatch(markActive(symbol));
   }
