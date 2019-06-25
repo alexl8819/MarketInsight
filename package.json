@@ -2,7 +2,7 @@
   "name": "MarketInsight",
   "private": true,
   "version": "2.9.12",
-  "description": "View and share stocks in realtime",
+  "description": "Finance platform similar to Yahoo Finance. See stock quotes, financial news and create watchlists with others (React+Ramda+Browserify)",
   "main": "index.js",
   "scripts": {
     "start:dev": "cross-env DEBUG=http,wss,stock,store NODE_ENV=development && node index.js | pino-colada",

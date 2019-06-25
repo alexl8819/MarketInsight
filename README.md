@@ -1,5 +1,5 @@
 # MarketInsight
-Stock market viewing platform. Meant to be used as a POC and not a real platform.
+Finance platform similar to Yahoo Finance. See stock quotes, financial news and create watchlists with others (React+Ramda+Browserify)
 
 Requires Node `v8.2.1+`
 
