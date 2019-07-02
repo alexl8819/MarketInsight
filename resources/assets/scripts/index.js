@@ -23,7 +23,7 @@ const Root = require('./components/root');
 const rootElement = document.getElementById('app');
 
 if (!rootElement) {
-  throw new Error('rootElement (#app) was not found. Unable to proceed');
+  throw new Error('rootElement was not found. Unable to proceed');
 }
 
 // Render UI when ready

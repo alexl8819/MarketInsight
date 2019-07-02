@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
-const { PureComponent } = require('react');
+const { PureComponent, Fragment } = require('react');
 const PropTypes = require('prop-types');
 const h = require('react-hyperscript');
 
@@ -39,11 +39,11 @@ class Main extends PureComponent {
   }
 
   render () {
-    return this.props.connected && this.props.ready ? h('div', {}, [
-      h('header', {}, 
+    return this.props.connected && this.props.ready ? h(Fragment, {}, [
+      h('header.header', {}, 
         h(Navigation, {})
       ),
-      h('main', {}, 
+      h('main.content', {}, 
         h('div.columns.is-gapless', {}, [
           h('div.column.is-one-quarter', {},
             h(VisibleStocksList, {})
