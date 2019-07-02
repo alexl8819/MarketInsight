@@ -1,7 +1,7 @@
 {
   "name": "MarketInsight",
   "private": true,
-  "version": "2.9.12",
+  "version": "2.9.14",
   "description": "View and share stocks in realtime",
   "main": "index.js",
   "scripts": {
