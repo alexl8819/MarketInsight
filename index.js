@@ -17,7 +17,7 @@
 **/
 const { join } = require('path');
 const { readFileSync } = require('fs');
-const { createServer } = require('spdy');
+const { createServer } = require('http');
 const express = require('express');
 const debug = require('debug')('http');
 
@@ -39,11 +39,7 @@ app.use(middleware);
 app.use(ASSET_ROUTE, express.static(MAIN_ASSET_PATH));
 app.use(router);
 
-const server = createServer(
-  process.env.NODE_ENV === 'production' ? {
-    key: readFileSync(process.env.KEY_PATH),
-    cert: readFileSync(process.env.CERT_PATH)
-  } : require('spdy-keys'), app);
+const server = createServer(app);
 
 const bound = server.listen(process.env.PORT || 9000, async () => {
   const config = Object.freeze({

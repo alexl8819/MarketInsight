@@ -52,7 +52,7 @@ const websocketHandler = (store) => (next) => async (action) => {
     }
     // Attempt to connect to the server
     try {
-      session = ClientSession.connect(`wss://${action.location}`);
+      session = ClientSession.connect(`ws://${action.location}`);
     } catch (err) {
       store.dispatch(updateAlertStatus({
         message: 'Network connection failed',
