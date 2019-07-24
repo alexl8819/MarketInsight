@@ -6,4 +6,4 @@ COPY . .
 RUN npm install
 RUN npm run build-all
 EXPOSE 9000
-CMD [ "pm2-runtime", "start", "ecosystem.config.js", "--web", "5000" ]
+CMD [ "pm2-runtime", "start", "ecosystem.config.js", "--env", "production" ]
