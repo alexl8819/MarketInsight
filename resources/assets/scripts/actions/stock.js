@@ -152,7 +152,7 @@ const runSymbolQuery = (query) => async (dispatch) => {
   //
   try {
     const matchResultsPromise = fetchJSON(
-      `https://${window.location.host}/stock/1.0/${query}/match`
+      `http://${window.location.host}/stock/1.0/${query}/match`
     );
     results = await matchResultsPromise;
   } catch (err) {
@@ -189,7 +189,7 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
   //
   try {
     const batchResultsPromise = fetchJSON(
-      `https://${window.location.host}/stock/1.0/${normalizedSymbol}/batchSummary`
+      `http://${window.location.host}/stock/1.0/${normalizedSymbol}/batchSummary`
     );
     batchResults = await batchResultsPromise;
   } catch (err) {
@@ -266,7 +266,7 @@ const runSync = (symbols) => async (dispatch, getState) => {
   // Fetch batch summaries
   try {
     const batchResultsPromise = fetchJSON(
-      `https://${window.location.host}/stock/1.0/${normalized.join(',')}/batchSummary`
+      `http://${window.location.host}/stock/1.0/${normalized.join(',')}/batchSummary`
     );
     batchResults = await batchResultsPromise;
   } catch (err) {
