@@ -13,7 +13,8 @@ module.exports = {
       DEBUG: 'http,wss,stock,watch'
     },
     env_production: {
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
+      API_TOKEN: process.env.API_TOKEN
     }
   }],
 
