@@ -41,6 +41,7 @@ app.use(router);
 
 const server = createServer(app);
 
+let store;
 const bound = server.listen(process.env.PORT || 9000, async () => {
   const config = Object.freeze({
     perMessageDeflate: true,
@@ -49,7 +50,18 @@ const bound = server.listen(process.env.PORT || 9000, async () => {
   // Update known symbol list
   await tradeableSymbols.update();
   // Start specific store based on env
-  process.env.NODE_ENV === 'production' ? 
+  store = process.env.NODE_ENV === 'production' ? 
     RedisMarketWatchStore.start(config) : BasicMarketWatchStore.start(config);
   debug(`Listening on port ${bound.address().port}`);
+});
+// Handle incoming interrupts
+process.on('SIGINT', async () => {
+  try {
+    const stopPromise = store.stop();
+    await stopPromise;
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+  process.exit(0);
 });
