@@ -43,7 +43,7 @@ class Main extends PureComponent {
       h('header.header', {}, 
         h(Navigation, {})
       ),
-      h('main.content', {}, 
+      h('main', {}, 
         h('div.columns.is-gapless', {}, [
           h('div.column.is-one-quarter', {},
             h(VisibleStocksList, {})
