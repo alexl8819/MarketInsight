@@ -1,8 +1,9 @@
-FROM keymetrics/pm2:10-alpine
+FROM node:lts-alpine
 
 RUN apk add --no-cache git make gcc g++ python
 WORKDIR /usr/src/app
 COPY . .
+RUN npm install -g pm2
 RUN npm install
 RUN npm run build-all
 EXPOSE 9000

@@ -1,13 +1,14 @@
 module.exports = {
   apps : [{
     name: 'market-insight',
-    script: 'npm',
+    script: 'index.js',
     // Options reference: https://pm2.io/doc/en/runtime/reference/ecosystem-file/
-    args: 'start',
+    // args: 'start',
     instances: 'max',
     autorestart: true,
     watch: false,
     max_memory_restart: '100M',
+    exec_mode: 'cluster',
     env: {
       NODE_ENV: 'development',
       DEBUG: 'http,wss,stock,watch'
