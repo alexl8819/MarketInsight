@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **/
+require('make-promises-safe');
+
 const { join } = require('path');
 const { readFileSync } = require('fs');
 const { createServer } = require('http');
@@ -49,8 +51,17 @@ const bound = server.listen(process.env.PORT || 9000, async () => {
   // Update known symbol list
   await tradeableSymbols.update();
   // Start specific store based on env
-  const store = await (process.env.NODE_ENV === 'production' ? 
-    RedisMarketWatchStore.start(config) : BasicMarketWatchStore.start(config));
+  let store;
+  if (process.env.NODE_ENV === 'production') {
+    store = await RedisMarketWatchStore.start(config);
+  } else {
+    store = await BasicMarketWatchStore.start(config);
+  }
+
+  if (!store) {
+    throw new Error('bootstrap: Unable to initialize store');
+  }
+
   // Handle incoming interrupts
   process.on('SIGINT', async () => {
     try {
@@ -58,7 +69,7 @@ const bound = server.listen(process.env.PORT || 9000, async () => {
       await stopPromise;
     } catch (err) {
       console.error(err);
-      process.exit(1);
+      return process.exit(1);
     }
     process.exit(0);
   }); 
