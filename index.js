@@ -17,8 +17,6 @@
 **/
 require('make-promises-safe');
 
-const { join } = require('path');
-const { readFileSync } = require('fs');
 const { createServer } = require('http');
 const express = require('express');
 const debug = require('debug')('http');
@@ -27,9 +25,9 @@ const { tradeableSymbols } = require('./lib/stock');
 const middleware = require('./lib/http/middleware').default;
 const router = require('./lib/http/router');
 const { 
-  BasicMarketWatchStore, 
-  RedisMarketWatchStore 
-} = require('./lib/store');
+  BasicMarketWatchService, 
+  RedisMarketWatchService 
+} = require('./lib/service');
 const { 
   MAIN_ASSET_PATH, 
   ASSET_ROUTE 
@@ -50,12 +48,12 @@ const bound = server.listen(process.env.PORT || 9000, async () => {
   });
   // Update known symbol list
   await tradeableSymbols.update();
-  // Start specific store based on env
+  // Start specific service based on env
   let store;
   if (process.env.NODE_ENV === 'production') {
-    store = await RedisMarketWatchStore.start(config);
+    store = await RedisMarketWatchService.start(config);
   } else {
-    store = await BasicMarketWatchStore.start(config);
+    store = await BasicMarketWatchService.start(config);
   }
 
   if (!store) {

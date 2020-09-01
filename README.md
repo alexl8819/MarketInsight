@@ -1,7 +1,7 @@
 # MarketInsight
 Finance platform similar to Yahoo Finance. See stock quotes, financial news and create watchlists with others (React+Ramda+Browserify)
 
-Requires Node `v8.2.1+`
+Requires Latest Node LTS `v12.18.3+` (Updated 2020-08-31)
 
 # Features
 - Search over 500 different symbols
@@ -11,7 +11,7 @@ Requires Node `v8.2.1+`
 Please note due to API limitations, chart data is limited to up to 2 years in order to save monthly call quota.
 
 # Setup
-You will need an IEX Cloud API key to access the third party market data. In development mode, sandbox APIs are used instead to avoid calls to the monthly quota. Sandbox mode requires its own API key. Export key to `API_KEY` variable before use.
+You will need an IEX Cloud API key to access the third party market data. In development mode, sandbox APIs are used instead to avoid calls to the monthly quota. Sandbox mode requires its own API key. Export key to `API_TOKEN` variable before use.
 
     $ npm install
 
