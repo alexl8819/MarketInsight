@@ -1,7 +1,7 @@
 {
   "name": "MarketInsight",
   "private": true,
-  "version": "2.10.17",
+  "version": "2.11.18",
   "description": "Finance platform similar to Yahoo Finance. See stock quotes, financial news and create watchlists with others (React+Ramda+Browserify)",
   "main": "index.js",
   "scripts": {
