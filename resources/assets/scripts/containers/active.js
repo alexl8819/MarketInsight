@@ -26,7 +26,9 @@ const { StockDetailedDisplay } = require('../components/stock');
 const mapStateToProps = (state) => ({
   selected: state.stocks.toArray().find(
     (stock) => stock.company.symbol === state.active
-  )
+  ),
+  ready: state.ready,
+  loading: state.loading,
   /*selected: matchByKey(
     'company',
     'symbol',

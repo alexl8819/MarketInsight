@@ -47,11 +47,7 @@ const customStockStyle = css`
 
 class Stock extends PureComponent {
   constructor (props) {
-    super(props); 
-    
-    this.state = {
-      disabled: false
-    };
+    super(props);
   }
  
   _handleClick (symbol) {
@@ -61,30 +57,12 @@ class Stock extends PureComponent {
     };
   }
 
-  componentWillMount () {
-    this.setState({ 
-      disabled: this.props.loading
-    });
-  }
-
-  componentWillUnmount () {
-    this.setState({
-      disabled: false
-    });
-  }
-  
-  componentWillReceiveProps () {
-    this.setState({
-      disabled: !!this.props.loading
-    });
-  }
-
   render() {
     const { company, quote, selected } = this.props;
     const { symbol, companyName } = company;
     const { change, latestPrice } = quote;
     return h(`li.is-unselectable.is-radiusless${selected ? '.active' : ''}.has-background-${selected ? 'white' : 'primary'}` +
-      `${(this.state.disabled || selected) ? '.is-disabled' : ''}`, {
+      `${(this.props.loading || selected) ? '.is-disabled' : ''}`, {
       className: customStockStyle
     },
     h('a', {
@@ -151,10 +129,6 @@ const customListStyle = css`
 class StocksList extends PureComponent {
   render () {
     const { stocks, loading } = this.props;
-    
-    if (loading) {
-      return null;
-    }
 
     return h('aside.menu', {},
       h('ul.menu-list.has-background-white', {

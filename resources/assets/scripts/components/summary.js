@@ -60,32 +60,18 @@ const customNewsStyle = css`
 class Summary extends Component {
   constructor (props) {
     super(props);
-    
-    this.state = {
-      resyncing: false
-    };
   }
 
   _handleClick (symbol, shouldRemove) {
     return (event) => {
       event.preventDefault();
-      this.setState({
-        resyncing: true
-      });
       this.props.actions.forceResync(symbol, shouldRemove);
     };
   }
 
-  componentDidUpdate () {
-    setTimeout(function () {
-      this.setState({
-        resyncing: false
-      });
-    }.bind(this), 100);
-  }
-
   shouldComponentUpdate (nextProps, nextState) {
-    return (nextProps.selected !== this.props.selected) || (nextState.resyncing !== this.state.resyncing);
+    return (nextProps.loading !== this.props.loading) || (nextProps.ready !== this.props.ready)
+      || (nextProps.selected !== this.props.selected) || (nextState.resyncing !== this.state.resyncing);
   }
 
   render () {
@@ -122,8 +108,9 @@ class Summary extends Component {
           h('div.content.has-text-right', {}, [
             h('h5.is-size-5.is-uppercase.has-text-right.has-text-weight-bold', {}, company.symbol),
             h('p.buttons', {}, 
-              h(`button.button.is-fullwidth${this.state.resyncing ? '.is-loading' : ''}`, {
+              h(`button.button.is-fullwidth${this.props.loading || !this.props.ready ? '.is-loading' : ''}`, {
                 className: subscribed ? 'is-danger' : 'is-primary',
+                disabled: this.props.loading,
                 onClick: this._handleClick(company.symbol, subscribed)
               }, [
                 h('span.icon', {}, 

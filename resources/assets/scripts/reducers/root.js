@@ -20,6 +20,7 @@ const { assoc, StrictObjectSet } = require('../../../../lib/util');
 const {
   UPDATE_CONNECTION_STATUS,
   UPDATE_READY_STATUS,
+  UPDATE_LOADING_STATUS,
   UPDATE_ALERT_STATUS,
   MARK_ACTIVE,
   SYNC,
@@ -29,6 +30,7 @@ const {
 const initialState = {
   connected: false, // state of network connection
   ready: false, // state of data filled
+  loading: false, // state between requests
   alert: {}, // state of network/application
   active: null, // state of active symbol watch
   results: new StrictObjectSet(), // non-duplicated result set
@@ -41,6 +43,8 @@ module.exports = (state = initialState, action) => {
   switch (action.type) {
   case UPDATE_CONNECTION_STATUS: // Updates connection status
     return assoc('connected', action.connected, state);
+  case UPDATE_LOADING_STATUS: // Updates loading status
+    return assoc('loading', action.loading, state);
   case UPDATE_READY_STATUS: // Updates ready status
     return assoc('ready', action.ready, state);
   case UPDATE_ALERT_STATUS: // Updates alert status

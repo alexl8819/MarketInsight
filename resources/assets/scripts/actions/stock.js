@@ -109,7 +109,7 @@ const _chooseActiveSymbol = () => (dispatch, getState) => {
   const { stocks, active } = getState();
   
   // Do not mark any symbols active if no stocks exist
-  if (!length(stocks.size)) {
+  if (stocks.size === 0) {
     return;
   }
 
@@ -144,15 +144,15 @@ const _applySubscribeOnlyFilter = () => (dispatch, getState) => {
 const runSymbolQuery = (query) => async (dispatch) => {
   ok(isString(query), 'query is not a string');
   
-  dispatch(updateLoadingStatus(true));
-  dispatch(_chooseActiveSymbol());
+  // dispatch(_chooseActiveSymbol());
   dispatch(_applySubscribeOnlyFilter());
+  dispatch(updateLoadingStatus(true));
 
   let results;
   //
   try {
     const matchResultsPromise = fetchJSON(
-      `${window.location.protocol}//${window.location.host}/stock/1.0/${query}/match`
+      `${window.location.protocol}//${window.location.host}/stock/1.0/match?query=${query}`
     );
     results = await matchResultsPromise;
   } catch (err) {
@@ -170,6 +170,7 @@ const runSymbolQuery = (query) => async (dispatch) => {
       })
     );
   } else {
+    dispatch(_chooseActiveSymbol());
     dispatch(applyResults(new StrictObjectSet(results)));
   }
   
@@ -189,7 +190,7 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
   //
   try {
     const batchResultsPromise = fetchJSON(
-      `${window.location.protocol}//${window.location.host}/stock/1.0/${normalizedSymbol}/batchSummary`
+      `${window.location.protocol}//${window.location.host}/stock/1.0/batchSummary?symbols=${normalizedSymbol}`
     );
     batchResults = await batchResultsPromise;
   } catch (err) {
@@ -239,10 +240,13 @@ const runSync = (symbols) => async (dispatch, getState) => {
   const { stocks, active } = getState();
   // Normalize all symbols
   const normalized = uppercaseArray(symbols);
-  // TODO:
+  // Update to loading status
+  dispatch(updateLoadingStatus(true));
+  // Check length
   if (!length(normalized)) {
     dispatch(markActive(null));
     dispatch(sync(new StrictObjectSet([])));
+    dispatch(updateLoadingStatus(false));
     return dispatch(updateReadyStatus(true));
   }
   // TODO:
@@ -266,7 +270,7 @@ const runSync = (symbols) => async (dispatch, getState) => {
   // Fetch batch summaries
   try {
     const batchResultsPromise = fetchJSON(
-      `${window.location.protocol}//${window.location.host}/stock/1.0/${normalized.join(',')}/batchSummary`
+      `${window.location.protocol}//${window.location.host}/stock/1.0/batchSummary?symbols=${normalized.join(',')}`
     );
     batchResults = await batchResultsPromise;
   } catch (err) {
@@ -274,6 +278,7 @@ const runSync = (symbols) => async (dispatch, getState) => {
   }
   // Validate results match expected structure
   if (!validateJSON(BATCH_SUMMARY_SCHEMA, batchResults)) {
+    dispatch(updateLoadingStatus(false));
     dispatch(updateAlertStatus({
       message: 'Something went wrong. Please try again',
       isError: true
@@ -288,6 +293,7 @@ const runSync = (symbols) => async (dispatch, getState) => {
     dispatch(_chooseActiveSymbol());
   }
   // Finish
+  dispatch(updateLoadingStatus(false));
   dispatch(updateReadyStatus(true));
 };
 
