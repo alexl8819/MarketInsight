@@ -148,6 +148,7 @@ const runSymbolQuery = (query) => async (dispatch) => {
   dispatch(updateLoadingStatus(true));
 
   let results;
+  let errorCode;
   //
   try {
     const matchResultsPromise = fetchJSON(
@@ -155,8 +156,7 @@ const runSymbolQuery = (query) => async (dispatch) => {
     );
     results = await matchResultsPromise;
   } catch (err) {
-    // TODO: only errors should be network related
-    // TODO: dispatch request fail
+    errorCode = err.status;
     results = {};
   }
 
@@ -164,7 +164,7 @@ const runSymbolQuery = (query) => async (dispatch) => {
     dispatch(results.error ? 
       applyResults(new StrictObjectSet([])) : 
       updateAlertStatus({
-        message: 'Something went wrong. Please try again',
+        message: (errorCode === 403 ? 'API limits reached' : 'Something went wrong.') + ' Please try again later',
         isError: true
       })
     );
@@ -186,6 +186,7 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
   dispatch(updateLoadingStatus(true));
   //
   let batchResults;
+  let errorCode;
   //
   try {
     const batchResultsPromise = fetchJSON(
@@ -193,12 +194,13 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
     );
     batchResults = await batchResultsPromise;
   } catch (err) {
+    errorCode = err.status;
     batchResults = {};
   }
   // 
   if (!validateJSON(BATCH_SUMMARY_SCHEMA, batchResults)) {
     dispatch(updateAlertStatus({
-      message: 'Something went wrong. Please try again.',
+      message: (batchResults.statusCode === 403 ? 'API limits reached.' : 'Something went wrong.') + ' Please try again later',
       isError: true
     }));
   } else {
@@ -241,59 +243,115 @@ const runSync = (symbols) => async (dispatch, getState) => {
   const normalized = uppercaseArray(symbols);
   // Update to loading status
   dispatch(updateLoadingStatus(true));
-  // Check length
+  // Check length changed
   if (!length(normalized)) {
     dispatch(markActive(null));
     dispatch(sync(new StrictObjectSet([])));
     dispatch(updateLoadingStatus(false));
-    return dispatch(updateReadyStatus(true));
+    dispatch(updateReadyStatus(true));
+    return;
   }
-  // TODO:
-  if (!stocks.size) {
-    dispatch(updateReadyStatus(false));
-  }
-  // TODO: use isEmpty
+  // TODO: maybe use isEmpty
   if (length(normalized) && isNil(active)) {
     dispatch(markActive(symbols[0]));
   }
-  // Create symbol list based on existing stocks
-  const curSymbols = map((stock) => stock.company.symbol, stocks.toArray());
-  // Diff against each list
-  const rmDiff = difference(curSymbols, symbols);
-  const addDiff = difference(symbols, curSymbols);
-  // Notify symbol adds/removals
-  forEach((symbol) => dispatch(updateAlertStatus({ message: `Removed ${symbol} from watchlist` })), rmDiff);
-  forEach((symbol) => dispatch(updateAlertStatus({ message: `Added ${symbol} to watchlist`})), addDiff);
-  //
+  let nextSubscriptionList;
   let batchResults;
-  // Fetch batch summaries
-  try {
-    const batchResultsPromise = fetchJSON(
-      `${window.location.protocol}//${window.location.host}/stock/1.0/batchSummary?symbols=${normalized.join(',')}`
-    );
-    batchResults = await batchResultsPromise;
-  } catch (err) {
-    batchResults = {};
-  }
-  // Validate results match expected structure
-  if (!validateJSON(BATCH_SUMMARY_SCHEMA, batchResults)) {
-    dispatch(updateLoadingStatus(false));
-    dispatch(updateAlertStatus({
-      message: 'Something went wrong. Please try again',
-      isError: true
-    }));
-  } else {
-    // Create new subscription list
+  let errorCode;
+  // If no local changes have ever occured (new users)
+  if (!stocks.size) {
+    dispatch(updateReadyStatus(false));
+    forEach((symbol) => dispatch(updateAlertStatus({ message: `Added ${symbol} to watchlist`})), normalized);
+    try {
+      const batchResultsPromise = fetchJSON(
+        `${window.location.protocol}//${window.location.host}/stock/1.0/batchSummary?symbols=${normalized.join(',')}`
+      );
+      batchResults = await batchResultsPromise;
+    } catch (err) {
+      errorCode = err.status;
+      batchResults = {};
+    }
+    // Validate results match expected structure
+    if (!validateJSON(BATCH_SUMMARY_SCHEMA, batchResults)) {
+      dispatch(updateAlertStatus({
+        message: (errorCode ? 'API limit reached.' : 'Something went wrong.') + ' Please try again later',
+        isError: true
+      }));
+    } else {
+      // Create new subscription list by merging with results
+      nextSubscriptionList = batchResults;
+    }
     dispatch(sync(new StrictObjectSet(map(
       (result) => assoc('subscribed', true, result), 
-      batchResults
+      nextSubscriptionList
     ))));
     // Choose active symbol
     dispatch(_chooseActiveSymbol());
+    // Finish
+    dispatch(updateLoadingStatus(false));
+    dispatch(updateReadyStatus(true));
+  } else {
+    // Create symbol list based on existing stocks
+    const curSymbols = map((stock) => stock.company.symbol, stocks.toArray());
+    // Diff against each list
+    const rmDiff = difference(curSymbols, symbols);
+    const addDiff = difference(symbols, curSymbols);
+    // Skip and return if no diffs occured
+    if (length(addDiff) === length(rmDiff)) {
+      nextSubscriptionList = stocks.toArray();
+      dispatch(sync(new StrictObjectSet(map(
+        (result) => assoc('subscribed', true, result), 
+        nextSubscriptionList
+      ))));
+      // Choose active symbol
+      dispatch(_chooseActiveSymbol());
+      // Finish
+      dispatch(updateLoadingStatus(false));
+      dispatch(updateReadyStatus(true));
+      return;
+    }
+    // If removed diff changed
+    if (length(rmDiff) > 0) {
+      nextSubscriptionList = stocks.toArray().filter((stock) => rmDiff.indexOf(stock.company.symbol) === -1);
+      // Notify symbol adds/removals
+      forEach((symbol) => dispatch(updateAlertStatus({ message: `Removed ${symbol} from watchlist` })), rmDiff);
+    } 
+    // If added diff changed
+    if (length(addDiff) > 0) {
+      // Notify symbol adds/removals
+      forEach((symbol) => dispatch(updateAlertStatus({ message: `Added ${symbol} to watchlist`})), addDiff);
+      const normalizedAddSymbols = uppercaseArray(addDiff);
+      try {
+        const batchResultsPromise = fetchJSON(
+          `${window.location.protocol}//${window.location.host}/stock/1.0/batchSummary?symbols=${normalizedAddSymbols.join(',')}`
+        );
+        batchResults = await batchResultsPromise;
+      } catch (err) {
+        errorCode = err.status;
+        batchResults = {};
+      }
+      // Validate results match expected structure
+      if (!validateJSON(BATCH_SUMMARY_SCHEMA, batchResults)) {
+        dispatch(updateAlertStatus({
+          message: (errorCode ? 'API limit reached.' : 'Something went wrong.') + ' Please try again later',
+          isError: true
+        }));
+      } else {
+        // Create new subscription list by merging with results
+        nextSubscriptionList = stocks.toArray().concat(batchResults);
+      }
+    }
+    // Dispatch new subscription list
+    dispatch(sync(new StrictObjectSet(map(
+      (result) => assoc('subscribed', true, result), 
+      nextSubscriptionList
+    ))));
+    // Choose active symbol
+    dispatch(_chooseActiveSymbol());
+    // Finish
+    dispatch(updateLoadingStatus(false));
+    dispatch(updateReadyStatus(true));
   }
-  // Finish
-  dispatch(updateLoadingStatus(false));
-  dispatch(updateReadyStatus(true));
 };
 
 // User action forced resync

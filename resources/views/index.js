@@ -1,8 +1,8 @@
 const { 
-  name, 
-  description,
-  author 
-} = require('../../package.json');
+  APP_NAME, 
+  APP_DESCRIPTION,
+  APP_AUTHOR 
+} = require('../../lib/constants');
 
 const { map, filterByExt } = require('../../lib/util');
 
@@ -12,8 +12,8 @@ module.exports = (assets = []) => `
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="author" content="${author}">
-        <title>${name} - ${description}</title>
+        <meta name="author" content="${APP_AUTHOR}">
+        <title>${APP_NAME} - ${APP_DESCRIPTION}</title>
         <link rel="dns-prefetch" href="https://fonts.gstatic.com">
         <link rel="dns-prefetch" href="https://code.ionicframework.com">
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
