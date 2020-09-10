@@ -144,7 +144,6 @@ const _applySubscribeOnlyFilter = () => (dispatch, getState) => {
 const runSymbolQuery = (query) => async (dispatch) => {
   ok(isString(query), 'query is not a string');
   
-  // dispatch(_chooseActiveSymbol());
   dispatch(_applySubscribeOnlyFilter());
   dispatch(updateLoadingStatus(true));
 
