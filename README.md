@@ -5,7 +5,7 @@ Requires Latest Node LTS `v12.18.3+` (Updated 2020-08-31)
 
 # Features
 - Search over 500 different symbols
-- View and share up to 15 close to realtime stocks simulteaneously with others
+- View and share up to 10 close to realtime stocks simulteaneously with others
 - See the latest news for each stock
 
 Please note due to API limitations, chart data is limited to up to 2 years in order to save monthly call quota.
