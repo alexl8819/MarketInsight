@@ -77,7 +77,7 @@ class Search extends PureComponent {
     }
 
     this.setState({
-      query: query,
+      query,
       isFetching: true 
     });
     this.handleChangeDebounced();

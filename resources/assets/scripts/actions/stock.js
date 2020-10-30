@@ -27,6 +27,7 @@ const {
   find,
   concat,
   sort,
+  join,
   forEach,
   map,
   filter,
@@ -152,7 +153,7 @@ const runSymbolQuery = (query) => async (dispatch) => {
   //
   try {
     const matchResultsPromise = fetchJSON(
-      `${window.location.protocol}//${window.location.host}/stock/1.0/match?query=${query}`
+      `${window.location.protocol}//${window.location.host}/stock/1.0/match?query=${encodeURIComponent(query)}`
     );
     results = await matchResultsPromise;
   } catch (err) {
@@ -264,7 +265,7 @@ const runSync = (symbols) => async (dispatch, getState) => {
     forEach((symbol) => dispatch(updateAlertStatus({ message: `Added ${symbol} to watchlist`})), normalized);
     try {
       const batchResultsPromise = fetchJSON(
-        `${window.location.protocol}//${window.location.host}/stock/1.0/batchSummary?symbols=${normalized.join(',')}`
+        `${window.location.protocol}//${window.location.host}/stock/1.0/batchSummary?symbols=${encodeURIComponent(join(',', normalized))}`
       );
       batchResults = await batchResultsPromise;
     } catch (err) {
@@ -323,7 +324,7 @@ const runSync = (symbols) => async (dispatch, getState) => {
       const normalizedAddSymbols = uppercaseArray(addDiff);
       try {
         const batchResultsPromise = fetchJSON(
-          `${window.location.protocol}//${window.location.host}/stock/1.0/batchSummary?symbols=${normalizedAddSymbols.join(',')}`
+          `${window.location.protocol}//${window.location.host}/stock/1.0/batchSummary?symbols=${encodeURIComponent(join(',', normalizedAddSymbols))}`
         );
         batchResults = await batchResultsPromise;
       } catch (err) {
