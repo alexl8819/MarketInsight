@@ -1,6 +1,6 @@
 /**
  * actions/stock.js - Stock-related actions
- * Copyright (C) 2018  idealwebsolutions
+ * Copyright (C) 2018 alexl8819
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -187,7 +187,8 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
   dispatch(updateLoadingStatus(true));
   //
   let batchResults;
-  let errorCode;
+  // TODO: use errorCode
+  // let errorCode;
   //
   try {
     const batchResultsPromise = fetchJSON(
@@ -195,7 +196,7 @@ const fetchSummary = (symbol) => async (dispatch, getState) => {
     );
     batchResults = await batchResultsPromise;
   } catch (err) {
-    errorCode = err.status;
+    // errorCode = err.status;
     batchResults = {};
   }
   // 

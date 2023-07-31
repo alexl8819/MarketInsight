@@ -1,6 +1,6 @@
 /**
  * containers/list.js - Visible Stock List container
- * Copyright (C) 2018  idealwebsolutions
+ * Copyright (C) 2018 alexl8819
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published

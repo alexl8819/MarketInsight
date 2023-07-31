@@ -1,6 +1,6 @@
 /**
  * middleware/socket.js - Middleware for websocket activity
- * Copyright (C) 2018  idealwebsolutions
+ * Copyright (C) 2018 alexl8819
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -52,7 +52,7 @@ const websocketHandler = (store) => (next) => async (action) => {
     }
     // Attempt to connect to the server
     try {
-      const isSecure = /^https\:/.test(window.location.protocol);
+      const isSecure = /^https:/.test(window.location.protocol);
       session = ClientSession.connect(`${isSecure ? 'wss' : 'ws'}://${action.location}`);
     } catch (err) {
       store.dispatch(updateAlertStatus({

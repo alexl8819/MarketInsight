@@ -1,6 +1,6 @@
 /**
  * containers/watch.js - Watch container
- * Copyright (C) 2018  idealwebsolutions
+ * Copyright (C) 2018 alexl8819
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -27,7 +27,7 @@ const { pick } = require('../../../../lib/util');
 
 const Main = require('../components/main');
 
-const mapStateToProps = (state) => pick(['connected', 'ready'], state); //(state);
+const mapStateToProps = (state) => pick(['connected', 'ready'], state);
 
 const mapDispatcherToProps = (dispatch) => ({
   actions: bindActionCreators({ 
